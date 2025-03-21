@@ -1,5 +1,6 @@
 import './style.css';
 import { Game } from './game';
+import { Player } from './actor/Player';
 
 const TARGET_FPS: number = 60;
 let targetInterval: number = 0;
@@ -24,6 +25,7 @@ const game: Game = new Game();
 function start(){
   previousTime = performance.now();
   targetInterval = 1000 / TARGET_FPS;
+  Game.instantiate(new Player());
   
   loop();
 }
@@ -33,7 +35,7 @@ function loop(){
   let elapsedTime = currentTime - previousTime;
   previousTime = currentTime;
   accumlatedTime += elapsedTime;
-  
+
   if(targetInterval <= accumlatedTime){
     deltaTime = accumlatedTime/1000;
     accumlatedTime = 0;

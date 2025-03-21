@@ -13,6 +13,7 @@ export class Rectangle extends Component{
     }
 
     draw(context: CanvasRenderingContext2D): void {
+        console.log('draw rectangle');
         context.fillStyle = 'red';
         context.fillRect(
             this.gameObject.transform.position.x,

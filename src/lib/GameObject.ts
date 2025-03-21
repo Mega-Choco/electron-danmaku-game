@@ -51,4 +51,9 @@ export class GameObject{
         }
         return copy;
       }
+
+
+      static instantiate(prefab: GameObject): GameObject {
+        return prefab.clone()
+      }
 }
