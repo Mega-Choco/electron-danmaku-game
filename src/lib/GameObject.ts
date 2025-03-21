@@ -1,5 +1,5 @@
-import { Component } from "./Component";
-import { Transform } from "../component/Transform";
+import { Component } from "../lib/Component"
+import { Transform } from "../component/Transform"
 
 export class GameObject{
     name: String = 'unkown';
@@ -39,4 +39,16 @@ export class GameObject{
             }
         });
     }
+
+    clone(): GameObject {
+        const copy = new GameObject(this.name);
+        for (const comp of this.components) {
+          const newComp = Object.assign(
+            Object.create(Object.getPrototypeOf(comp)),
+            comp
+          );
+          copy.addComponent(newComp);
+        }
+        return copy;
+      }
 }

@@ -1,6 +1,5 @@
 import './style.css';
-import { GameObject } from './lib/GameObject';
-import { Player } from './actor/Player';
+import { Game } from './game';
 
 const TARGET_FPS: number = 60;
 let targetInterval: number = 0;
@@ -20,12 +19,12 @@ if(canvas.getContext("2d") == null)
 
 const context: CanvasRenderingContext2D = canvas.getContext("2d")!!;
 
-let gameObjects: GameObject[] = [];
+const game: Game = new Game();
 
 function start(){
   previousTime = performance.now();
   targetInterval = 1000 / TARGET_FPS;
-  gameObjects.push(new Player());
+  
   loop();
 }
 
@@ -33,29 +32,18 @@ function loop(){
   currentTime = performance.now();
   let elapsedTime = currentTime - previousTime;
   previousTime = currentTime;
-  
   accumlatedTime += elapsedTime;
+  
   if(targetInterval <= accumlatedTime){
     deltaTime = accumlatedTime/1000;
     accumlatedTime = 0;
-    update(deltaTime);
-    draw();
+
+    game.update(deltaTime);
+    game.draw(context);
   }
   requestAnimationFrame(loop);
   return;
 }
 
-function update(deltaTime: number){
-  gameObjects.forEach((obj)=>{
-    obj.update(deltaTime)
-  });
-}
-
-function draw(){
-  context?.clearRect(0,0,canvas!!.width, canvas!!.height);
-  gameObjects.forEach((obj)=>{
-    obj.draw(context);
-  });
-}
 
 start();
