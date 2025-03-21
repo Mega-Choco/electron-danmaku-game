@@ -1,9 +1,13 @@
+import { Player } from "../actor/Player";
 import { GameObject } from "../lib/gameObject";
 import { Scene } from "../lib/scene";
 
 export class BasicScene extends Scene{
-    load(): GameObject[] {
-        throw new Error("Method not implemented.");
-    }
+    
+    constructor(){
+        super();
+        const player = new Player();
 
+        this.addObject(player);
+    }
 }

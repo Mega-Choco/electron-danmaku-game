@@ -20,5 +20,4 @@ export class Game{
     this.objects.length = 0
   }
 
-  
 }

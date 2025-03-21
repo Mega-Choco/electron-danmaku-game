@@ -1,5 +1,6 @@
 import { Component } from "../lib/component"
 import { Transform } from "../component/transform"
+import { SceneManager } from "../sceneManager";
 
 export class GameObject{
     name: String = 'unkown';
@@ -54,6 +55,9 @@ export class GameObject{
 
 
       static instantiate(prefab: GameObject): GameObject {
-        return prefab.clone()
+        const clone = prefab.clone();
+        SceneManager.addToCurrentScene(clone);
+
+        return clone;
       }
 }
