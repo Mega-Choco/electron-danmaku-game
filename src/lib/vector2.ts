@@ -7,4 +7,9 @@ export class Vector2{
         this.x = x;
         this.y = y;
     }
+
+    zero(){
+        this.x = 0;
+        this.y = 0;
+    }
 }
