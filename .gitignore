@@ -1,0 +1,40 @@
+# Node modules
+node_modules/
+
+# Vite build output
+dist/
+
+# Electron build output (electron-builder)
+dist_electron/
+build/
+*.local
+
+# Mac system files
+.DS_Store
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# TypeScript output (if outDir is used)
+*.tsbuildinfo
+
+# IDE settings
+.vscode/
+.idea/
+
+# OS-specific
+Thumbs.db
+Desktop.ini
+
+# Optional: dotenv files (only if you use .env for secrets)
+.env
+.env.*
+
+# Electron ASAR packaging output
+*.asar
+
+# Electron auto-update cache (optional)
+.update/
