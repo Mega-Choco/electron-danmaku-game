@@ -1,4 +1,4 @@
-import { Vector2 } from "../lib/Vector2";
+import { Vector2 } from "../lib/vector2";
 
 export class Transform{
     position: Vector2 = new Vector2();

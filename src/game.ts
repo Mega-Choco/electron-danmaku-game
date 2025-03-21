@@ -1,4 +1,4 @@
-import { GameObject } from "./lib/GameObject";
+import { GameObject } from "./lib/gameObject";
 
 export class Game{
   private objects: GameObject[] = [];

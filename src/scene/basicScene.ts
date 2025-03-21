@@ -1,4 +1,4 @@
-import { GameObject } from "../lib/GameObject";
+import { GameObject } from "../lib/gameObject";
 import { Scene } from "../lib/scene";
 
 export class BasicScene extends Scene{

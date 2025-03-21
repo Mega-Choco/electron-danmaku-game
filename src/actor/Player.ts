@@ -1,6 +1,6 @@
-import { GameObject } from "../lib/GameObject";
-import { Controller } from "../component/Controller";
-import { Rectangle } from "../component/Rectangle";
+import { GameObject } from "../lib/gameObject";
+import { Controller } from "../component/controller";
+import { Rectangle } from "../component/rectangle";
 
 export class Player extends GameObject{
     constructor(){

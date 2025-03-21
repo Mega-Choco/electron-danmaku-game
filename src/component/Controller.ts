@@ -1,4 +1,4 @@
-import { Component } from "../lib/Component";
+import { Component } from "../lib/component";
 
 export class Controller extends Component{
     speed: number = 0;

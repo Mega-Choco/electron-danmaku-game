@@ -1,5 +1,5 @@
-import { Component } from "../lib/Component"
-import { Transform } from "../component/Transform"
+import { Component } from "../lib/component"
+import { Transform } from "../component/transform"
 
 export class GameObject{
     name: String = 'unkown';

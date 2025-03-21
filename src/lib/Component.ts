@@ -1,4 +1,4 @@
-import { GameObject } from "./GameObject"
+import { GameObject } from "./gameObject"
 
 export abstract class Component{
     gameObject!: GameObject
