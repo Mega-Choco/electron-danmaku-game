@@ -2,14 +2,17 @@ import { Component } from "../lib/component";
 
 export class Controller extends Component{
     speed: number = 0;
+    throttleSpeed: number = 0;
     private _isUpPressed = false;
     private _isDownPressed = false;
     private _isLeftPressed = false;
     private _isRightPressed = false;
+    private _isShiftPressed = false;
 
     constructor(speed: number){
         super();
-        this.speed = speed;        
+        this.speed = speed;      
+        this.throttleSpeed = this.speed/2;  
     }
 
     async init(): Promise<void> {
@@ -35,8 +38,11 @@ export class Controller extends Component{
         }
 
         
-        this.gameObject.transform.position.x += xDir * (this.speed * delta);
-        this.gameObject.transform.position.y += yDir * (this.speed * delta);
+        this.gameObject.transform.position.x += xDir * 
+            ((this._isShiftPressed ? this.throttleSpeed : this.speed) * delta);
+            
+        this.gameObject.transform.position.y += yDir * 
+            ((this._isShiftPressed ? this.throttleSpeed : this.speed) * delta);
 
         console.log(`x: ${xDir}, y: ${yDir}`);
     }   
@@ -62,6 +68,10 @@ export class Controller extends Component{
                     this._isRightPressed = false;
                     break;
                 }
+                case 'ShiftLeft':{
+                    this._isShiftPressed = false;
+                    break;
+                }
             }
         });
 
@@ -83,6 +93,10 @@ export class Controller extends Component{
                 }
                 case 'ArrowRight': {
                     this._isRightPressed = true;
+                    break;
+                }
+                case 'ShiftLeft':{
+                    this._isShiftPressed = true;
                     break;
                 }
             }
