@@ -9,9 +9,10 @@ export class Controller extends Component{
 
     constructor(speed: number){
         super();
-        this.speed = speed;
+        this.speed = speed;        
+    }
 
-        // should be move to init phase
+    async init(): Promise<void> {
         this.registerKeyEvents();
     }
 
@@ -26,16 +27,18 @@ export class Controller extends Component{
         if(this._isDownPressed){
             yDir = 1;
         }
-        if(this._isRightPressed){
-            xDir = 1;
-        }
         if(this._isLeftPressed){
             xDir = -1;
+        }
+        if(this._isRightPressed){
+            xDir = 1;
         }
 
         
         this.gameObject.transform.position.x += xDir * (this.speed * delta);
         this.gameObject.transform.position.y += yDir * (this.speed * delta);
+
+        console.log(`x: ${xDir}, y: ${yDir}`);
     }   
 
     private registerKeyEvents() {

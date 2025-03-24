@@ -25,6 +25,13 @@ export class GameObject{
         return this.components.find(c=> c instanceof ctor ) as T | undefined;
     } 
 
+    async init(){
+        this.components.forEach(async comp => {
+            if(comp.init){
+                await comp.init();
+            }
+        });
+    }
     update(delta: number){
         this.components.forEach((comp)=>{
             if(comp.update){

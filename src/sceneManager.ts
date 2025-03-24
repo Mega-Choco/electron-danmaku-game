@@ -16,7 +16,8 @@ export class SceneManager{
       this.currentScene?.render(ctx)
     }
 
-    static addToCurrentScene(obj: GameObject) {
+    static async addToCurrentScene(obj: GameObject) {
+        await obj.init();
         this.currentScene?.addObject(obj)
     }
 }

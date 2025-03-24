@@ -6,8 +6,6 @@ export class BasicScene extends Scene{
     
     constructor(){
         super();
-        const player = new Player();
-
-        this.addObject(player);
+        GameObject.instantiate(new Player());
     }
 }
