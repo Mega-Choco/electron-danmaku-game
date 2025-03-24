@@ -1,4 +1,4 @@
-import { GameObject } from "../lib/gameObject";
+import { GameObject } from "../lib/game-object";
 
 export class Bullet extends GameObject{
     constructor(){

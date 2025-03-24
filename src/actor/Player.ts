@@ -1,4 +1,4 @@
-import { GameObject } from "../lib/gameObject";
+import { GameObject } from "../lib/game-object";
 import { Controller } from "../component/controller";
 import { Rectangle } from "../component/rectangle";
 
