@@ -24,11 +24,10 @@ const context: CanvasRenderingContext2D = canvas.getContext("2d")!!;
 const game: Game = new Game();
 //const sceneManager: SceneManager = new SceneManager();
 
-
-
 function start(){
   previousTime = performance.now();
   targetInterval = 1000 / TARGET_FPS;
+  //Game.instantiate(new Player());
   SceneManager.loadScene(new BasicScene());
   
   loop();

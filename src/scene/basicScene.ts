@@ -1,4 +1,4 @@
-import { Player } from "../actor/player";
+import { Player } from "../actor/Player";
 import { GameObject } from "../lib/gameObject";
 import { Scene } from "../lib/scene";
 
