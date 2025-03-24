@@ -1,4 +1,4 @@
-import { Component } from "../lib/component"
+import { Component } from "./component"
 import { Transform } from "../component/transform"
 import { SceneManager } from "../sceneManager";
 
