@@ -1,6 +1,5 @@
 import { GameObject } from "../lib/game-object";
 import { Controller } from "../component/controller";
-import { Rectangle } from "../component/rectangle";
 import { Image } from "../component/image";
 import { Circle } from "../component/circle";
 
