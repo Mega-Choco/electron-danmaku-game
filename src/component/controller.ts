@@ -2,6 +2,7 @@ import { Component } from "../lib/component";
 import { SpriteAnimation } from "./sprite-animation";
 
 export class Controller extends Component{
+    controllerable: boolean = true;
     speed: number = 0;
     throttleSpeed: number = 0;
     
@@ -24,7 +25,20 @@ export class Controller extends Component{
         this.animation = this.gameObject.getComponent(SpriteAnimation);
     }
 
+    disableController(){
+        this.controllerable = false;
+    }
+
+    enableController(){
+        this.controllerable = true;
+    }
+
     update(delta: number): void {
+        
+        // 조작 활성확인
+        if(!this.controllerable)
+            return;
+
         let xDir = 0;
         let yDir = 0;
         let currentAnimTriggerName : string = 'middle';
