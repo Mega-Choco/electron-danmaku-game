@@ -1,8 +1,12 @@
 import { Component } from "../lib/component";
+import { SpriteAnimation } from "./sprite-animation";
 
 export class Controller extends Component{
     speed: number = 0;
     throttleSpeed: number = 0;
+    
+    animation: SpriteAnimation | null = null;
+
     private _isUpPressed = false;
     private _isDownPressed = false;
     private _isLeftPressed = false;
@@ -17,11 +21,13 @@ export class Controller extends Component{
 
     async init(): Promise<void> {
         this.registerKeyEvents();
+        this.animation = this.gameObject.getComponent(SpriteAnimation);
     }
 
     update(delta: number): void {
         let xDir = 0;
         let yDir = 0;
+        let currentAnimTriggerName : string = 'middle';
 
         // check direction
         if(this._isUpPressed){
@@ -37,14 +43,28 @@ export class Controller extends Component{
             xDir = 1;
         }
 
-        
+        switch(xDir){
+            case -1: {
+                currentAnimTriggerName = 'left';
+                break;
+            }
+            case 1: {
+                currentAnimTriggerName = 'right';
+                break;
+            }
+            default:{
+                currentAnimTriggerName = 'middle';
+                break;
+            }
+        }
+
         this.gameObject.transform.position.x += xDir * 
             ((this._isShiftPressed ? this.throttleSpeed : this.speed) * delta);
             
         this.gameObject.transform.position.y += yDir * 
             ((this._isShiftPressed ? this.throttleSpeed : this.speed) * delta);
 
-        console.log(`x: ${xDir}, y: ${yDir}`);
+        this.animation?.changeAnimation(currentAnimTriggerName);
     }   
 
     private registerKeyEvents() {

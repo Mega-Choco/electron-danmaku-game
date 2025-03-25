@@ -1,4 +1,5 @@
 import './style.css';
+import 'reflect-metadata';
 import { Game } from './game';
 import { SceneManager } from './sceneManager';
 import { BasicScene } from './scene/basicScene';

@@ -1,3 +1,4 @@
+import { AssetManager } from "../asset-manager";
 import { Component } from "../lib/component";
 import { Vector2 } from "../lib/vector2";
 
@@ -18,7 +19,7 @@ export class Image extends Component{
         this.height = height;
     }
     async init(): Promise<void> {
-        const img = await this.loadImageBitmap(this.path);
+        const img = await AssetManager.loadImage(this.path);
         this.image = img;
     }
 
@@ -36,16 +37,4 @@ export class Image extends Component{
             )    
         }
     }
-
-    async loadImageBitmap(path: string): Promise<ImageBitmap> {
-        console.log("이미지 로드 시도");
-        const res = await fetch(`${path}`, { cache: 'no-store' }); // 캐시 무시
-        console.log(res);
-        if (!res.ok) throw new Error(`이미지 불러오기 실패: ${res.status}`);
-      
-        const blob = await res.blob();
-        if (blob.size === 0) throw new Error('빈 파일입니다');
-      
-        return await createImageBitmap(blob); // 여기서 깨지는 경우 많음
-      }
 }

@@ -1,0 +1,38 @@
+[
+    {
+        "name" : "middle",
+        "offsetX" : 0,
+        "offsetY" : 0,
+        "width":32,
+        "height":48,
+        "frame" : 8, 
+        "waitFrame":5,
+        "loopInfo" : null
+    },
+    {
+        "name" : "left",
+        "offsetX" : 0,
+        "offsetY" : 48,
+        "width":32,
+        "height":48,
+        "frame" : 8, 
+        "waitFrame":5,
+        "loopInfo" : {
+            "start" : 4,
+            "end" : 8
+        }
+    },
+    {
+        "name" : "right",
+        "offsetX" : 0,
+        "offsetY" : 96,
+        "width":32,
+        "height":48,
+        "frame" : 8, 
+        "waitFrame":5,
+        "loopInfo" : {
+            "start" : 4,
+            "end" : 8
+        }
+    }
+]
