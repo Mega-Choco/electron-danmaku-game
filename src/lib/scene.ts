@@ -4,10 +4,13 @@ export abstract class Scene{
     gameObjects: GameObject[] = []
 
     update(delta: number) {
-    
+      // update logic
       for (const obj of this.gameObjects) {
         obj.update?.(delta)
       }
+
+      // check collision
+      
     }
   
     render(ctx: CanvasRenderingContext2D) {

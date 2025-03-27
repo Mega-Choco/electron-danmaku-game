@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { AssetManager } from "../asset-manager";
+import { AssetManager } from "../manager/asset-manager";
 import { Component } from "../lib/component";
 import { AnimationLoopPoint } from "../lib/animation-loop-point";
 

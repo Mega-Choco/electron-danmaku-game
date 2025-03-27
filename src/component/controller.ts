@@ -1,4 +1,5 @@
 import { Component } from "../lib/component";
+import { Circle } from "./circle";
 import { SpriteAnimation } from "./sprite-animation";
 
 export class Controller extends Component{
@@ -6,13 +7,15 @@ export class Controller extends Component{
     speed: number = 0;
     throttleSpeed: number = 0;
     
-    animation: SpriteAnimation | null = null;
+    private _animation: SpriteAnimation | null = null;
 
     private _isUpPressed = false;
     private _isDownPressed = false;
     private _isLeftPressed = false;
     private _isRightPressed = false;
     private _isShiftPressed = false;
+
+    private _circleComponent: Circle | null = null;
 
     constructor(speed: number){
         super();
@@ -22,7 +25,8 @@ export class Controller extends Component{
 
     async init(): Promise<void> {
         this.registerKeyEvents();
-        this.animation = this.gameObject.getComponent(SpriteAnimation);
+        this._animation = this.gameObject.getComponent(SpriteAnimation);
+        this._circleComponent = this.gameObject.getComponent(Circle);
     }
 
     disableController(){
@@ -78,7 +82,7 @@ export class Controller extends Component{
         this.gameObject.transform.position.y += yDir * 
             ((this._isShiftPressed ? this.throttleSpeed : this.speed) * delta);
 
-        this.animation?.changeAnimation(currentAnimTriggerName);
+        this._animation?.changeAnimation(currentAnimTriggerName);
     }   
 
     private registerKeyEvents() {

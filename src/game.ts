@@ -1,23 +1,33 @@
+import { CircleCollider } from "./component/circle-colider";
 import { GameObject } from "./lib/game-object";
+import { CollisionManager } from "./manager/collision-manager";
+import { SceneManager } from "./manager/sceneManager";
+import { BasicScene } from "./scene/basicScene";
 
 export class Game{
-  private objects: GameObject[] = [];
-
-  update(dt: number) {
-    for (const obj of this.objects) obj.update(dt)
+  private static sceneManager = new SceneManager();
+  private static collisionManager = new CollisionManager(100);
+  
+  static start(){
+    this.sceneManager.loadScene(new BasicScene());
   }
 
-  draw(ctx: CanvasRenderingContext2D) {
-    console.log(`objects: ${this.objects.length}`)
-    for (const obj of this.objects) obj.draw(ctx)
+  static update(delta: number){
+    this.sceneManager.update(delta);
+    this.collisionManager.update();
   }
 
-  getAll(): GameObject[] {
-    return this.objects
+  static draw(context: CanvasRenderingContext2D){
+    this.sceneManager.draw(context);
+    this.collisionManager.drawDebugLine(context);
   }
 
-  clear() {
-    this.objects.length = 0
-  }
+  static async registerObject(object: GameObject){
+    await this.sceneManager.addToCurrentScene(object);
+    const collider = object.getComponent(CircleCollider);
 
+    if(collider!=null){
+      this.collisionManager.colliders.push(collider);
+    }
+  }
 }

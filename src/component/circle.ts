@@ -12,7 +12,7 @@ export class Circle extends Component{
 
     draw(context: CanvasRenderingContext2D): void {
         
-        context.fillStyle = 'red';
+        context.fillStyle = this.color;
         context.beginPath();
         context.arc(
             this.gameObject.transform.position.x,

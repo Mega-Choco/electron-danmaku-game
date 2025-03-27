@@ -1,4 +1,4 @@
-import { AssetManager } from "../asset-manager";
+import { AssetManager } from "../manager/asset-manager";
 import { Component } from "../lib/component";
 import { Vector2 } from "../lib/vector2";
 

@@ -1,5 +1,5 @@
 import { plainToInstance } from "class-transformer";
-import { Animation } from "./component/sprite-animation";
+import { Animation } from "../component/sprite-animation";
 
 export class AssetManager{
     static async loadImage(path: string): Promise<ImageBitmap>{

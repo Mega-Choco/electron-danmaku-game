@@ -1,17 +1,13 @@
 import './style.css';
 import 'reflect-metadata';
 import { Game } from './game';
-import { SceneManager } from './sceneManager';
-import { BasicScene } from './scene/basicScene';
 
 const TARGET_FPS: number = 60;
 let targetInterval: number = 0;
 let deltaTime: number = 0;
-
 let currentTime: number = 0;
 let previousTime: number = 0;
 let accumlatedTime: number = 0;
-
 let canvas = document.getElementById('screen') as HTMLCanvasElement | null;
 
 if(canvas == null)
@@ -22,14 +18,11 @@ if(canvas.getContext("2d") == null)
 
 const context: CanvasRenderingContext2D = canvas.getContext("2d")!!;
 
-const game: Game = new Game();
-//const sceneManager: SceneManager = new SceneManager();
-
 function start(){
   previousTime = performance.now();
   targetInterval = 1000 / TARGET_FPS;
-  //Game.instantiate(new Player());
-  SceneManager.loadScene(new BasicScene());
+  
+  Game.start();
   
   loop();
 }
@@ -43,7 +36,6 @@ function loop(){
   if(targetInterval <= accumlatedTime){
     deltaTime = accumlatedTime/1000;
     accumlatedTime = 0;
-    
     update();
     draw();  
   }
@@ -52,13 +44,12 @@ function loop(){
 }
 
 function update(){
-  SceneManager.update(deltaTime);
+  Game.update(deltaTime);
 }
 
 function draw(){
   context.clearRect(0,0, canvas!!.width, canvas!!.height);
-  SceneManager.draw(context);
+  Game.draw(context);
 }
-
 
 start();
