@@ -65,9 +65,8 @@ export class GameObject{
 
 
       static instantiate(prefab: GameObject): GameObject {
-        const clone = prefab.clone();
-        Game.registerObject(clone);
+        Game.registerObject(prefab);
 
-        return clone;
+        return prefab;
       }
 }
