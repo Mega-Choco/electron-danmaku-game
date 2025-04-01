@@ -1,4 +1,5 @@
 import { Component } from "../lib/component";
+import { InputKey, InputManager } from "../manager/input-manager";
 import { Circle } from "./circle";
 import { SpriteAnimation } from "./sprite-animation";
 
@@ -24,7 +25,6 @@ export class Controller extends Component{
     }
 
     async init(): Promise<void> {
-        this.registerKeyEvents();
         this._animation = this.gameObject.getComponent(SpriteAnimation);
         this._circleComponent = this.gameObject.getComponent(Circle);
     }
@@ -48,18 +48,10 @@ export class Controller extends Component{
         let currentAnimTriggerName : string = 'middle';
 
         // check direction
-        if(this._isUpPressed){
-            yDir = -1;
-        }
-        if(this._isDownPressed){
-            yDir = 1;
-        }
-        if(this._isLeftPressed){
-            xDir = -1;
-        }
-        if(this._isRightPressed){
-            xDir = 1;
-        }
+        if (InputManager.isPressed(InputKey.Left)) xDir = -1;
+        if (InputManager.isPressed(InputKey.Right)) xDir = 1;
+        if (InputManager.isPressed(InputKey.Up)) yDir = -1;
+        if (InputManager.isPressed(InputKey.Down)) yDir = 1;
 
         switch(xDir){
             case -1: {
@@ -84,61 +76,4 @@ export class Controller extends Component{
 
         this._animation?.changeAnimation(currentAnimTriggerName);
     }   
-
-    private registerKeyEvents() {
-        document.addEventListener('keyup', (event) => {
-            switch (event.code) {
-                case 'ArrowUp':
-                    {
-                        this._isUpPressed = false;
-                        break;
-                    }
-                case 'ArrowDown':
-                    {
-                        this._isDownPressed = false;
-                        break;
-                    }
-                case 'ArrowLeft': {
-                    this._isLeftPressed = false;
-                    break;
-                }
-                case 'ArrowRight': {
-                    this._isRightPressed = false;
-                    break;
-                }
-                case 'ShiftLeft':{
-                    this._isShiftPressed = false;
-                    break;
-                }
-            }
-        });
-
-        document.addEventListener('keydown', (event) => {
-            switch (event.code) {
-                case 'ArrowUp':
-                    {
-                        this._isUpPressed = true;
-                        break;
-                    }
-                case 'ArrowDown':
-                    {
-                        this._isDownPressed = true;
-                        break;
-                    }
-                case 'ArrowLeft': {
-                    this._isLeftPressed = true;
-                    break;
-                }
-                case 'ArrowRight': {
-                    this._isRightPressed = true;
-                    break;
-                }
-                case 'ShiftLeft':{
-                    this._isShiftPressed = true;
-                    break;
-                }
-            }
-        });
-    }
-
 }

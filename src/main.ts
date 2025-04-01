@@ -1,6 +1,7 @@
 import './style.css';
 import 'reflect-metadata';
 import { Game } from './game';
+import { InputManager } from './manager/input-manager';
 
 const TARGET_FPS: number = 60;
 let targetInterval: number = 0;
@@ -21,7 +22,8 @@ const context: CanvasRenderingContext2D = canvas.getContext("2d")!!;
 function start(){
   previousTime = performance.now();
   targetInterval = 1000 / TARGET_FPS;
-  
+  InputManager.initialize();
+    
   Game.start();
   
   loop();
