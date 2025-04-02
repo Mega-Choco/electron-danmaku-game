@@ -1,3 +1,4 @@
+import { Player } from "./actor/player";
 import { CircleCollider } from "./component/circle-colider";
 import { GameObject } from "./lib/game-object";
 import { CollisionManager } from "./manager/collision-manager";
@@ -7,7 +8,9 @@ import { BasicScene } from "./scene/basicScene";
 export class Game{
   private static sceneManager = new SceneManager();
   private static collisionManager = new CollisionManager(100);
-  
+  public static player:Player | null = null;
+  public static environment: Environment;
+
   static start(){
     this.sceneManager.loadScene(new BasicScene());
   }
@@ -30,4 +33,15 @@ export class Game{
       this.collisionManager.colliders.push(collider);
     }
   }
+
+  static setPlayer(player: Player){
+    this.player = player;
+  }
+}
+
+class Environment{
+  screenWidth: number = 0;
+  screenHeight: number = 0;
+
+  bulletDeadzone: number = 0;
 }

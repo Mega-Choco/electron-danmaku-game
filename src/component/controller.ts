@@ -10,12 +10,6 @@ export class Controller extends Component{
     
     private _animation: SpriteAnimation | null = null;
 
-    private _isUpPressed = false;
-    private _isDownPressed = false;
-    private _isLeftPressed = false;
-    private _isRightPressed = false;
-    private _isShiftPressed = false;
-
     private _circleComponent: Circle | null = null;
 
     constructor(speed: number){
@@ -47,11 +41,14 @@ export class Controller extends Component{
         let yDir = 0;
         let currentAnimTriggerName : string = 'middle';
 
+        let isThrottle = false;
+
         // check direction
         if (InputManager.isPressed(InputKey.Left)) xDir = -1;
         if (InputManager.isPressed(InputKey.Right)) xDir = 1;
         if (InputManager.isPressed(InputKey.Up)) yDir = -1;
         if (InputManager.isPressed(InputKey.Down)) yDir = 1;
+        if(InputManager.isPressed(InputKey.Slow)) isThrottle = true;
 
         switch(xDir){
             case -1: {
@@ -69,10 +66,10 @@ export class Controller extends Component{
         }
 
         this.gameObject.transform.position.x += xDir * 
-            ((this._isShiftPressed ? this.throttleSpeed : this.speed) * delta);
+            ((isThrottle ? this.throttleSpeed : this.speed) * delta);
             
         this.gameObject.transform.position.y += yDir * 
-            ((this._isShiftPressed ? this.throttleSpeed : this.speed) * delta);
+            ((isThrottle ? this.throttleSpeed : this.speed) * delta);
 
         this._animation?.changeAnimation(currentAnimTriggerName);
     }   

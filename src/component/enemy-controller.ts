@@ -1,4 +1,5 @@
 import { Bullet } from "../actor/bullet";
+import { Game } from "../game";
 import { Component } from "../lib/component";
 import { GameObject } from "../lib/game-object";
 import { Vector2 } from "../lib/vector2";
@@ -66,20 +67,32 @@ export class EmenyController extends Component{
 
 
     private fanShot() {
-        const bulletCount = 10;
+        const bulletCount = 5;
         const speed = 15;
-        const angleRange = Math.PI / 2; // 90도
-        const startAngle = -Math.PI / 4; // 기준 각도 (-45도)
+        const angleRange = Math.PI / 4;
+
+        const myPos = this.gameObject.transform.position;
+        const playerPos = Game.player?.transform.position;
+
+        if(!playerPos)return;
+
+        const dx = playerPos.x - myPos.x;
+        const dy = playerPos.y - myPos.y;
+
+
+        const startAngle = Math.atan2(dy, dx);
+
+        const angleOffset = -angleRange / 2;
+        console.log(`플레이어 위치: x: ${Game.player?.transform.position.x}, y: ${Game.player?.transform.position.y}`);
       
         for (let i = 0; i < bulletCount; i++) {
-          const angle = startAngle + (angleRange / (bulletCount - 1)) * i;
-          const vx = Math.cos(angle) * speed;
-          const vy = Math.sin(angle) * speed;
-      
-          const bullet = new Bullet(speed, new Vector2(vx, vy), 10);
-          bullet.transform.position = 
-          new Vector2(this.gameObject.transform.position.x, this.gameObject.transform.position.y);
-          GameObject.instantiate(bullet);
+            const angle = startAngle + angleOffset + (angleRange / (bulletCount - 1)) * i;
+            const vx = Math.cos(angle) * speed;
+            const vy = Math.sin(angle) * speed;
+        
+            const bullet = new Bullet(speed, new Vector2(vx, vy), 10);
+            bullet.transform.position = new Vector2(myPos.x, myPos.y);
+            GameObject.instantiate(bullet);
         }
     }
 }

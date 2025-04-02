@@ -21,6 +21,21 @@ export class CircleCollider extends Collision{
         // not supported
         return false;
     }
+
+    draw(context: CanvasRenderingContext2D): void {
+        context.beginPath();
+        context.arc(this.gameObject.transform.position.x,
+            this.gameObject.transform.position.y,
+            this.radius,
+            0,
+            Math.PI * 2, 
+            true
+        );
+        
+        context.strokeStyle = 'red';
+        context.lineWidth = 2;
+        context.stroke();
+    }
     doCollide(target: Collision): void {
         throw new Error("Method not implemented.");
     }
