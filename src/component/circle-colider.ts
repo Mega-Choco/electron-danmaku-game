@@ -36,7 +36,9 @@ export class CircleCollider extends Collision{
         context.lineWidth = 2;
         context.stroke();
     }
+    
     doCollide(target: Collision): void {
+        console.log("circle collider collision detected");
         throw new Error("Method not implemented.");
     }
 }

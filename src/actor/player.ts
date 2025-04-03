@@ -14,7 +14,7 @@ export class Player extends GameObject{
             '/animation/reimu.json',
             '/images/reimu_sprite.png'
         ))
-        //this.addComponent(new Circle(5,'blue'));
+    
         this.addComponent(new CircleCollider(5));
 
         console.log('player created!');

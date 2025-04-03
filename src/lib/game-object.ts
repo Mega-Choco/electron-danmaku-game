@@ -1,17 +1,17 @@
 import { Component } from "./component"
 import { Transform } from "../component/transform"
-import { SceneManager } from "../manager/sceneManager";
 import { Vector2 } from "./vector2";
 import { Game } from "../game";
 
 export class GameObject{
     name: String = 'unkown';
-    transform: Transform = new Transform()
+    transform: Transform = new Transform();
+    enabled: boolean = true;
 
     private components: Component[] = [];
     
     constructor(name: String, position: Vector2 = new Vector2(0,0)){
-        name = name;
+        this.name = name;
         this.transform.position = position;
     }
 
@@ -22,9 +22,9 @@ export class GameObject{
 
     getComponent<T extends Component>(ctor: new (...args: any[]) => T): T | null{
         let component = this.components.find(c=> c instanceof ctor ) as T | null;
-        if(component == undefined){
-            console.error(`cannot find component <${ctor.toString}> in object [${this.name}]`);
-        }
+        if(component == undefined)
+            return null;
+        
         return this.components.find(c=> c instanceof ctor ) as T | null;
     } 
 
@@ -37,7 +37,7 @@ export class GameObject{
     }
     update(delta: number){
         this.components.forEach((comp)=>{
-            if(comp.update){
+            if(comp.enabled && comp.update){
                 comp.update(delta);
             }
         });
@@ -45,10 +45,25 @@ export class GameObject{
 
     draw(context: CanvasRenderingContext2D){
         this.components.forEach((comp)=>{
-            if(comp.draw){
+            if(comp.enabled && comp.draw){
                 comp.draw(context);
             }
         });
+    }
+
+    disable(){
+        this.components.forEach((comp)=>{
+            comp.enabled = false;
+        });
+        this.enabled = false;    
+    }
+
+    enable(){
+        this.components.forEach((comp)=>{
+            comp.enabled = true;
+        });
+        
+        this.enabled = true;
     }
 
     clone(): GameObject {

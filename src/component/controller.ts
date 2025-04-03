@@ -20,7 +20,7 @@ export class Controller extends Component{
 
     async init(): Promise<void> {
         this._animation = this.gameObject.getComponent(SpriteAnimation);
-        this._circleComponent = this.gameObject.getComponent(Circle);
+        //this._circleComponent = this.gameObject.getComponent(Circle);
     }
 
     disableController(){

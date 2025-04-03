@@ -35,7 +35,8 @@ export class CollisionManager {
   
     update(){
         for(const c of this.colliders){
-            this.updateCollider(c);
+            if(c.enabled)
+              this.updateCollider(c);
         }
     }
 
@@ -114,7 +115,7 @@ export class CollisionManager {
           ctx.stroke();
         }
         
-        this.drawDebugInfo(ctx);
+        //this.drawDebugInfo(ctx);
     }
 
     drawDebugInfo(ctx: CanvasRenderingContext2D){
@@ -126,7 +127,5 @@ export class CollisionManager {
             ctx.fillText(`cell [${key}]: ${set.size} `, 10, offset);
             offset += 20;
         }
-        
-    
     }
   }
