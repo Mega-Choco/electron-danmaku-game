@@ -1,5 +1,6 @@
 import { Component } from "../lib/component";
 import { InputKey, InputManager } from "../manager/input-manager";
+import { Setting } from "../setting";
 import { Circle } from "./circle";
 import { SpriteAnimation } from "./sprite-animation";
 
@@ -33,7 +34,6 @@ export class Controller extends Component{
 
     update(delta: number): void {
         
-        // 조작 활성확인
         if(!this.controllerable)
             return;
 
@@ -43,7 +43,6 @@ export class Controller extends Component{
 
         let isThrottle = false;
 
-        // check direction
         if (InputManager.isPressed(InputKey.Left)) xDir = -1;
         if (InputManager.isPressed(InputKey.Right)) xDir = 1;
         if (InputManager.isPressed(InputKey.Up)) yDir = -1;
@@ -65,11 +64,14 @@ export class Controller extends Component{
             }
         }
 
-        this.gameObject.transform.position.x += xDir * 
-            ((isThrottle ? this.throttleSpeed : this.speed) * delta);
-            
-        this.gameObject.transform.position.y += yDir * 
-            ((isThrottle ? this.throttleSpeed : this.speed) * delta);
+        const moveSpeed = (isThrottle ? this.throttleSpeed : this.speed) * delta;
+        const pos = this.gameObject.transform.position;
+
+        pos.x += xDir * moveSpeed;
+        pos.y += yDir * moveSpeed;
+
+        pos.x = Math.max(0, Math.min(Setting.screen.width, pos.x));
+        pos.y = Math.max(0, Math.min(Setting.screen.height, pos.y));
 
         this._animation?.changeAnimation(currentAnimTriggerName);
     }   
