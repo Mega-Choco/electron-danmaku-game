@@ -1,5 +1,6 @@
 import { Component } from "../lib/component";
 import { Vector2 } from "../lib/vector2";
+import { Setting } from "../setting";
 
 export class Projectile extends Component{
     speed: number;
@@ -12,10 +13,16 @@ export class Projectile extends Component{
     
     update(delta: number): void {
 
-        if((this.gameObject.transform.position.x <= -30 || this.gameObject.transform.position.x >= 830) ||
-        (this.gameObject.transform.position.y <= -30 || this.gameObject.transform.position.y >= 630)){
+        const deadzoneOffset = Setting.system.bulletDeadZoneOffset;
+
+        if(
+            (this.gameObject.transform.position.x <= -deadzoneOffset || this.gameObject.transform.position.x >= (Setting.screen.width + deadzoneOffset)) ||
+            (this.gameObject.transform.position.y <= -deadzoneOffset || this.gameObject.transform.position.y >= (Setting.screen.height + deadzoneOffset))
+        ){
             this.gameObject.disable();
+            return;
         }
+
         this.gameObject.transform.position.x += (this.speed * delta) * this.velocity.x;
         this.gameObject.transform.position.y += (this.speed * delta) * this.velocity.y;
     }

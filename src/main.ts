@@ -2,8 +2,8 @@ import './style.css';
 import 'reflect-metadata';
 import { Game } from './game';
 import { InputManager } from './manager/input-manager';
+import { Setting } from './setting';
 
-const TARGET_FPS: number = 60;
 let targetInterval: number = 0;
 let deltaTime: number = 0;
 let currentTime: number = 0;
@@ -19,13 +19,17 @@ if(canvas.getContext("2d") == null)
 
 const context: CanvasRenderingContext2D = canvas.getContext("2d")!!;
 
+function initialize(){
+  canvas!.width = Setting.screen.width;
+  canvas!.height = Setting.screen.height;
+  start();
+}
 function start(){
-  previousTime = performance.now();
-  targetInterval = 1000 / TARGET_FPS;
+  targetInterval = 1000 / Setting.system.fps;
   InputManager.initialize();
-    
-  Game.start();
   
+  Game.start();
+  previousTime = performance.now();
   loop();
 }
 
@@ -36,9 +40,11 @@ function loop(){
   accumlatedTime += elapsedTime;
 
   if(targetInterval <= accumlatedTime){
-    deltaTime = accumlatedTime/1000;
-    accumlatedTime = 0;
-    update();
+    while(accumlatedTime >= targetInterval){
+      deltaTime = targetInterval/1000;
+      update();      
+      accumlatedTime -= targetInterval;
+    }
     draw();  
   }
   requestAnimationFrame(loop);
@@ -54,4 +60,4 @@ function draw(){
   Game.draw(context);
 }
 
-start();
+initialize();

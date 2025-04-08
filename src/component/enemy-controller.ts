@@ -49,7 +49,6 @@ export class EmenyController extends Component{
     }
 
     private radialShot(){
-
         console.log("radial shot!")
         const cnt = 30;
         const speed = 10;
