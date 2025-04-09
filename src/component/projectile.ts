@@ -4,7 +4,9 @@ import { Setting } from "../setting";
 
 export class Projectile extends Component{
     speed: number;
-    velocity: Vector2
+    velocity: Vector2;
+    grazed: boolean = false;
+    
     constructor(speed: number, velocity: Vector2 = new Vector2()){
         super();
         this.speed = speed;

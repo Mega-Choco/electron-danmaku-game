@@ -9,7 +9,8 @@ export class Game{
   private static sceneManager = new SceneManager();
   private static collisionManager = new CollisionManager(100);
   public static player:Player | null = null;
-  public static environment: Environment;
+  
+  private static graze: number = 0;
 
   static start(){
     this.sceneManager.loadScene(new BasicScene());
@@ -37,11 +38,11 @@ export class Game{
   static setPlayer(player: Player){
     this.player = player;
   }
-}
 
-class Environment{
-  screenWidth: number = 0;
-  screenHeight: number = 0;
-
-  bulletDeadzone: number = 0;
+  static incareseGraze(){
+    this.graze += 1;
+  }
+  static resetGraze(){
+    this.graze = 0;
+  }
 }

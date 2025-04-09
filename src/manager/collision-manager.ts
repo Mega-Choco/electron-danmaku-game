@@ -1,4 +1,5 @@
 import { CircleCollider } from "../component/circle-colider";
+import { Setting } from "../setting";
 
 export class CollisionManager {
     cellSize: number;
@@ -102,13 +103,13 @@ export class CollisionManager {
     drawDebugLine(ctx: CanvasRenderingContext2D){
         ctx.strokeStyle = "#ddd";
         const cellSize = this.cellSize;
-        for (let x = 0; x <= 800; x += cellSize) {
+        for (let x = 0; x <= Setting.screen.width; x += cellSize) {
           ctx.beginPath();
           ctx.moveTo(x, 0); 
           ctx.lineTo(x, 600);
           ctx.stroke();
         }
-        for (let y = 0; y <= 600; y += cellSize) {
+        for (let y = 0; y <= Setting.screen.height; y += cellSize) {
           ctx.beginPath();
           ctx.moveTo(0, y);
           ctx.lineTo(800, y);
