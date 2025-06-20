@@ -61,10 +61,12 @@ export class CollisionManager {
         for (const collider of this.colliders) {
             if (collider.enabled) {
                 this.updateCollider(collider);
+            } else {
+                // 비활성화된 콜라이더는 그리드에서 제거
+                this.removeColliderFromGrid(collider);
             }
         }
         
-        // 충돌 검사 수행
         this.detectAllCollisions();
     }
 
@@ -72,7 +74,6 @@ export class CollisionManager {
         const newKeys = this.getOverlappingCellKeys(collider);
         const oldKeys = this.colliderToCellKeys.get(collider) || new Set();
 
-        // 변경된 셀만 업데이트 (최적화)
         const keysToRemove = new Set<string>();
         const keysToAdd = new Set<string>();
 
@@ -123,29 +124,34 @@ export class CollisionManager {
     }
 
     private detectAllCollisions(): void {
-        // 이미 체크한 콜라이더를 추적
-        const checkedColliders = new Set<CircleCollider>();
+        const checkedPairs = new Set<string>();
+        for (const cellColliders of this.grid.values()) {
         
-        // 모든 활성화된 콜라이더에 대해 충돌 검사
-        for (const collider of this.colliders) {
-            if (!collider.enabled) continue;
+            if (cellColliders.size < 2) continue;
             
-            const potentialCollisions = this.getPotentialCollisions(collider);
+            const colliderArray = Array.from(cellColliders);
             
-            for (const other of potentialCollisions) {
-                // 다른 콜라이더가 이미 체크되었으면 스킵 (중복 방지)
-                if (checkedColliders.has(other)) continue;
-                
-                // 실제 충돌 검사
-                if (collider.checkCollision(other)) {
-                    collider.doCollide(other);
-                    other.doCollide(collider); // 양방향 충돌 처리
+            for (let i = 0; i < colliderArray.length - 1; i++) {
+                for (let j = i + 1; j < colliderArray.length; j++) {
+                    const colliderA = colliderArray[i];
+                    const colliderB = colliderArray[j];
+                    
+                    const pairKey = this.createPairKey(colliderA, colliderB);
+                    if (checkedPairs.has(pairKey)) continue;
+                    
+                    checkedPairs.add(pairKey);
+                    
+                    if (colliderA.checkCollision(colliderB)) {
+                        colliderA.doCollide(colliderB);
+                        colliderB.doCollide(colliderA);
+                    }
                 }
             }
-            
-            // 이 콜라이더는 체크 완료
-            checkedColliders.add(collider);
         }
+    }
+    
+    private createPairKey(a: CircleCollider, b: CircleCollider): string {
+        return a < b ? `${a}-${b}` : `${b}-${a}`;
     }
 
     clear(): void {
@@ -181,7 +187,6 @@ export class CollisionManager {
         ctx.restore();
     }
 
-    // 디버그 정보 표시
     drawDebugInfo(ctx: CanvasRenderingContext2D): void {
         ctx.save();
         ctx.fillStyle = "black";
@@ -190,7 +195,6 @@ export class CollisionManager {
         let y = 20;
         const lineHeight = 16;
         
-        // 전체 통계
         ctx.fillText(`Total Colliders: ${this.colliders.size}`, 10, y);
         y += lineHeight;
         
