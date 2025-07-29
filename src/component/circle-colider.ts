@@ -3,10 +3,14 @@ import { GameObject } from "../lib/game-object";
 
 export class CircleCollider extends Collision{
     radius: number = 0;
+    debug: boolean = false;
+    debugStyle: string = 'red';
     
-    constructor(radius: number){
+    constructor(radius: number, debug: boolean = false, debugColor: string = 'red'){
         super();
         this.radius = radius;
+        this.debug = debug;
+        this.debugStyle = debugColor;
     }
     
     checkCollision(target: Collision): boolean {
@@ -23,18 +27,21 @@ export class CircleCollider extends Collision{
     }
 
     draw(context: CanvasRenderingContext2D): void {
-        context.beginPath();
-        context.arc(this.gameObject.transform.position.x,
-            this.gameObject.transform.position.y,
-            this.radius,
-            0,
-            Math.PI * 2, 
-            true
-        );
+    
+        if(this.debug){
         
-        context.strokeStyle = 'red';
-        context.lineWidth = 2;
-        context.stroke();
+            context.beginPath();
+            context.arc(
+                this.gameObject.transform.position.x,
+                this.gameObject.transform.position.y,
+                this.radius,
+                0,
+                Math.PI * 2
+            );
+            context.fillStyle =this.debugStyle;
+            context.lineWidth = 2;
+            context.fill();
+        }
     }
     
     doCollide(target: Collision): void {

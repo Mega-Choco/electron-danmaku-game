@@ -1,8 +1,4 @@
-import { Bullet } from "../actor/bullet";
-import { Game } from "../game";
 import { Component } from "../lib/component";
-import { GameObject } from "../lib/game-object";
-import { Vector2 } from "../lib/vector2";
 import { FanShotPattern } from "./pattern/fan-shot-pattern";
 import { RadialShotPattern } from "./pattern/radial-shot-pattern";
 

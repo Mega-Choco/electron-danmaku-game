@@ -20,7 +20,7 @@ export abstract class Scene{
         obj.draw?.(ctx)
       }
     }
-
+ 
     addObject(obj: GameObject) {
         this.gameObjects.push(obj)
       }
