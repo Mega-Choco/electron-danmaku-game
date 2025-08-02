@@ -1,7 +1,9 @@
 import { Player } from "./actor/player";
 import { CircleCollider } from "./component/circle-colider";
+import { Collider } from "./lib/collider";
 import { GameObject } from "./lib/game-object";
 import { CollisionManager } from "./manager/collision-manager";
+import { InputManager } from "./manager/input-manager";
 import { SceneManager } from "./manager/sceneManager";
 import { BasicScene } from "./scene/basicScene";
 
@@ -17,6 +19,7 @@ export class Game{
   }
 
   static update(delta: number){
+    InputManager.update();
     this.sceneManager.update(delta);
     this.collisionManager.update();
   }
@@ -28,10 +31,11 @@ export class Game{
 
   static async registerObject(object: GameObject){
     await this.sceneManager.addToCurrentScene(object);
-    const collider = object.getComponent(CircleCollider);
-
-    if(collider!=null){
-      this.collisionManager.colliders.push(collider);
+    const colliderComponents = object.getComponents(CircleCollider);
+    //console.log(`obj[${object.name}]의 콜라이더 갯수: ${colliderComponents.length}`);
+    if(colliderComponents.length > 0){
+      this.collisionManager.colliders.push(...colliderComponents);
+    
     }
   }
 

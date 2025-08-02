@@ -5,6 +5,8 @@ import { GameObject } from "../lib/game-object";
 import { Vector2 } from "../lib/vector2";
 
 export class Bullet extends GameObject{
+    isGrazed = false;
+    
     constructor(speed: number, velocity: Vector2, radius: number){
         super("bullet");
         this.addComponent(new Circle(radius, 'green'));

@@ -4,7 +4,7 @@ import { SpriteAnimation } from "../component/sprite-animation";
 import { Vector2 } from "../lib/vector2";
 import { CircleCollider } from "../component/circle-colider";
 import { Game } from "../game";
-import { GrazeColider } from "../component/graze-collider";
+import { GrazeCollider } from "../component/graze-collider";
 
 export class Player extends GameObject{
     constructor(position: Vector2){
@@ -15,8 +15,8 @@ export class Player extends GameObject{
             '/images/reimu_sprite.png'
         ))
     
-        this.addComponent(new CircleCollider(5));
-        this.addComponent(new GrazeColider(30, true, 'rgba(0,0,255,0.5)'));
+        this.addComponent(new CircleCollider(10, true, 'rgba(255,0,0,0.5)'));
+        this.addComponent(new GrazeCollider(30, true, 'rgba(0,0,255,0.5)'));
 
         console.log('player created!');
 

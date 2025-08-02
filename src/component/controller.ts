@@ -43,11 +43,11 @@ export class Controller extends Component{
 
         let isThrottle = false;
 
-        if (InputManager.isPressed(InputKey.Left)) xDir = -1;
-        if (InputManager.isPressed(InputKey.Right)) xDir = 1;
-        if (InputManager.isPressed(InputKey.Up)) yDir = -1;
-        if (InputManager.isPressed(InputKey.Down)) yDir = 1;
-        if(InputManager.isPressed(InputKey.Slow)) isThrottle = true;
+        if (InputManager.geyKey(InputKey.Left)) xDir = -1;
+        if (InputManager.geyKey(InputKey.Right)) xDir = 1;
+        if (InputManager.geyKey(InputKey.Up)) yDir = -1;
+        if (InputManager.geyKey(InputKey.Down)) yDir = 1;
+        if(InputManager.geyKey(InputKey.Slow)) isThrottle = true;
 
         switch(xDir){
             case -1: {

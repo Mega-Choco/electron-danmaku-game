@@ -28,6 +28,11 @@ export class GameObject{
         return this.components.find(c=> c instanceof ctor ) as T | null;
     } 
 
+    getComponents<T extends Component>(ctor: new (...args: any[]) => T): T[] {
+        const foundComponents = this.components.filter(c => c instanceof ctor) as T[];
+        return foundComponents;
+    }
+
     async init(){
         this.components.forEach(async comp => {
             if(comp.init){

@@ -1,7 +1,8 @@
-import { Collision } from "../lib/collision";
+
+import { Collider } from "../lib/collider";
 import { GameObject } from "../lib/game-object";
 
-export class CircleCollider extends Collision{
+export class CircleCollider extends Collider{
     radius: number = 0;
     debug: boolean = false;
     debugStyle: string = 'red';
@@ -13,18 +14,25 @@ export class CircleCollider extends Collision{
         this.debugStyle = debugColor;
     }
     
-    checkCollision(target: Collision): boolean {
-        const targetPos = target.gameObject.transform.position;
-        const myPos = this.gameObject.transform.position;
+   checkCollision(target: Collider): boolean {
+    const targetPos = target.gameObject.transform.position;
+    const myPos = this.gameObject.transform.position;
+    
+    if (target instanceof CircleCollider) {
+        const dx = targetPos.x - myPos.x;
+        const dy = targetPos.y - myPos.y;
         
-        if(target instanceof CircleCollider){
-            const d = (targetPos.x - myPos.x) ^ 2 + (targetPos.y - targetPos.y) ^ 2;
-            const r = (this.radius + target.radius) ^ 2;
-            return d <= r;
-        }
-        // not supported
-        return false;
+        const distanceSquared = dx ** 2 + dy ** 2;
+        const radiusSum = this.radius + target.radius;
+        const radiusSumSquared = radiusSum ** 2;
+        
+        const collided = distanceSquared <= radiusSumSquared;
+    
+        return collided;
     }
+    
+    return false;
+}
 
     draw(context: CanvasRenderingContext2D): void {
     
@@ -44,8 +52,14 @@ export class CircleCollider extends Collision{
         }
     }
     
-    doCollide(target: Collision): void {
-        console.log("circle collider collision detected");
-        throw new Error("Method not implemented.");
+    doCollisionEnter(target: Collider): void {
+        console.log('콜리전 ㅇㅇ');
+    }
+
+    doCollisionStay(target: Collider): void {
+        
+    }
+    doCollisionExit(target: Collider): void {
+        
     }
 }

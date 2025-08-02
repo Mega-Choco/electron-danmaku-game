@@ -10,6 +10,7 @@ let currentTime: number = 0;
 let previousTime: number = 0;
 let accumlatedTime: number = 0;
 let canvas = document.getElementById('screen') as HTMLCanvasElement | null;
+let isPaused = false;
 
 if(canvas == null)
   throw new Error('Canvas not found!');

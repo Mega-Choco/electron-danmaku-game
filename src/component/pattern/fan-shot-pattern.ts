@@ -6,7 +6,7 @@ import { Pattern } from "./pattern";
 
 export class FanShotPattern extends Pattern {
     fire(enemy: GameObject): void {
-        const bulletCount = 5;
+        const bulletCount = 1;
         const speed = 15;
         const angleRange = Math.PI / 4;
 

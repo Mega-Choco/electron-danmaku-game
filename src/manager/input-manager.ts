@@ -1,10 +1,13 @@
+import { Input } from "electron";
+
 export enum InputKey {
     Up = 'Up',
     Down = 'Down',
     Left = 'Left',
     Right = 'Right',
     Slow = 'Slow',
-    Shot = 'Shot'
+    Shot = 'Shot',
+    Pause = 'Pause',
 }
 
 const keyBindings: Record<string, InputKey> = {
@@ -14,27 +17,58 @@ const keyBindings: Record<string, InputKey> = {
     'ArrowRight': InputKey.Right,
     'ShiftLeft': InputKey.Slow,
     'KeyZ': InputKey.Shot,
+    'Escape': InputKey.Pause
 };
 
 export class InputManager {
-    private static keys = new Set<InputKey>();
+    private static storedHoldKeys = new Set<InputKey>();
+    private static storedDownKeys = new Set<InputKey>();
+    private static storedUpKeys = new Set<InputKey>();
+
+    private static currentHoldKeys = new Set<InputKey>();
+    private static currentDownKeys = new Set<InputKey>();
+    private static currentUpKeys = new Set<InputKey>();
+
 
     static initialize() {
         window.addEventListener('keydown', (e) => {
-            if (!e.repeat && keyBindings[e.code]) {
-                InputManager.keys.add(keyBindings[e.code]);
-            }
-        });
+           const inputKey = keyBindings[e.code];
+           if (inputKey) {
+               if (!InputManager.storedHoldKeys.has(inputKey)) {
+                   InputManager.storedDownKeys.add(inputKey);
+               }
+               InputManager.storedHoldKeys.add(inputKey);
+           }
+       });
 
-        window.addEventListener('keyup', (e) => {
-            const inputKey = keyBindings[e.code];
-            if (inputKey) {
-                InputManager.keys.delete(inputKey);
-            }
-        });
+       window.addEventListener('keyup', (e) => {
+           const inputKey = keyBindings[e.code];
+           if (inputKey) {
+               InputManager.storedHoldKeys.delete(inputKey);
+               InputManager.storedUpKeys.add(inputKey);
+           }
+       });
     }
+   
+   static update() {
+       InputManager.currentHoldKeys = new Set(InputManager.storedHoldKeys);
+       InputManager.currentDownKeys = new Set(InputManager.storedDownKeys);
+       InputManager.currentUpKeys = new Set(InputManager.currentUpKeys);
+       
+       InputManager.storedDownKeys.clear();
+       InputManager.storedUpKeys.clear();
+   }
 
-    static isPressed(key: InputKey): boolean {
-        return InputManager.keys.has(key);
-    }
+   static geyKey(key: InputKey): boolean {
+       return InputManager.currentHoldKeys.has(key);
+   }
+
+   static getKeyDown(key: InputKey): boolean {
+       return InputManager.currentDownKeys.has(key);
+   }
+
+   
+   static getKeyUp(key: InputKey): boolean {
+       return InputManager.currentUpKeys.has(key);
+   }
 }
