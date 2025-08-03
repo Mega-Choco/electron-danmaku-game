@@ -1,5 +1,5 @@
 import { GameObject } from "../lib/game-object";
-import { Controller } from "../component/controller";
+import { PlayerController } from "../component/player-controller";
 import { SpriteAnimation } from "../component/sprite-animation";
 import { Vector2 } from "../lib/vector2";
 import { CircleCollider } from "../component/circle-colider";
@@ -9,7 +9,7 @@ import { GrazeCollider } from "../component/graze-collider";
 export class Player extends GameObject{
     constructor(position: Vector2){
         super('Player', position);
-        this.addComponent(new Controller(300));
+        this.addComponent(new PlayerController(300));
         this.addComponent(new SpriteAnimation(
             '/animation/reimu.json',
             '/images/reimu_sprite.png'

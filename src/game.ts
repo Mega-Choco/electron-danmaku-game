@@ -43,8 +43,9 @@ export class Game{
     this.player = player;
   }
 
-  static incareseGraze(){
-    this.graze += 1;
+  static increaseGraze(){
+    this.graze++;
+    console.log(`그레이즈>: ${this.graze}`);
   }
   static resetGraze(){
     this.graze = 0;

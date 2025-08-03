@@ -53,7 +53,6 @@ export class CircleCollider extends Collider{
     }
     
     doCollisionEnter(target: Collider): void {
-        console.log('콜리전 ㅇㅇ');
     }
 
     doCollisionStay(target: Collider): void {

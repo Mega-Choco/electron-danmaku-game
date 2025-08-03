@@ -1,4 +1,5 @@
 import { Bullet } from "../actor/bullet";
+import { Game } from "../game";
 import { Collider } from "../lib/collider";
 
 import { CircleCollider } from "./circle-colider";
@@ -14,8 +15,7 @@ export class GrazeCollider extends CircleCollider {  // 철자 수정
             if(target.gameObject.isGrazed)
                 return;
 
-            console.log('적의 총알임');
-            console.log('그레이즈');
+            Game.increaseGraze();
             target.gameObject.isGrazed = true;
         }
     }

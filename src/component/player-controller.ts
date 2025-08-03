@@ -1,17 +1,14 @@
 import { Component } from "../lib/component";
 import { InputKey, InputManager } from "../manager/input-manager";
 import { Setting } from "../setting";
-import { Circle } from "./circle";
 import { SpriteAnimation } from "./sprite-animation";
 
-export class Controller extends Component{
+export class PlayerController extends Component{
     controllerable: boolean = true;
     speed: number = 0;
     throttleSpeed: number = 0;
     
     private _animation: SpriteAnimation | null = null;
-
-    private _circleComponent: Circle | null = null;
 
     constructor(speed: number){
         super();
