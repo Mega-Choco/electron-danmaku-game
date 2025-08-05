@@ -5,7 +5,7 @@ import { Pattern } from "./pattern";
 
 export class RadialShotPattern extends Pattern {
     fire(enemy: GameObject): void {
-        const cnt = 1;
+        const cnt = 5;
         const speed = 10;
         const myPos = enemy.transform.position;
 

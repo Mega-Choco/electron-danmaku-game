@@ -5,11 +5,13 @@ import { GameObject } from "./lib/game-object";
 import { CollisionManager } from "./manager/collision-manager";
 import { InputManager } from "./manager/input-manager";
 import { SceneManager } from "./manager/sceneManager";
+import UIManager from "./manager/ui-manager";
 import { BasicScene } from "./scene/basicScene";
 
 export class Game{
   private static sceneManager = new SceneManager();
   private static collisionManager = new CollisionManager(100);
+  private static uiManager = new UIManager();
   public static player:Player | null = null;
   
   private static graze: number = 0;
@@ -27,6 +29,7 @@ export class Game{
   static draw(context: CanvasRenderingContext2D){
     this.sceneManager.draw(context);
     this.collisionManager.drawDebugLine(context);
+    this.uiManager.drawUI(context);
   }
 
   static async registerObject(object: GameObject){
@@ -46,6 +49,9 @@ export class Game{
   static increaseGraze(){
     this.graze++;
     console.log(`그레이즈>: ${this.graze}`);
+  }
+  static getGraze(){
+    return this.graze;
   }
   static resetGraze(){
     this.graze = 0;

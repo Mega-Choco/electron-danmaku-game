@@ -7,6 +7,6 @@ export class Enemy extends GameObject{
     constructor(position: Vector2){
         super("enemy", position);
         this.addComponent(new Circle(15,"red"));
-        this.addComponent(new EmenyController(1,3));
+        this.addComponent(new EmenyController(.5,10));
     }
 }
