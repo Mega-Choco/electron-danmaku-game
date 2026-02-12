@@ -1,7 +1,10 @@
 import { Bullet, BulletOwner } from "../actor/bullet";
 import { Collider } from "../lib/collider";
+import { AssetManager } from "../manager/asset-manager";
 import { Health } from "./health";
 import { CircleCollider } from "./circle-colider";
+
+const ENEMY_DAMAGE_SE_PATH = "/assets/sounds/se/se_damage00.wav";
 
 export class EnemyHitCollider extends CircleCollider {
     damagePerHit: number;
@@ -27,6 +30,7 @@ export class EnemyHitCollider extends CircleCollider {
         }
 
         health.takeDamage(this.damagePerHit);
+        void AssetManager.playSound(ENEMY_DAMAGE_SE_PATH, 0.45);
         target.gameObject.disable();
     }
 }

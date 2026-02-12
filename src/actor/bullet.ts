@@ -12,6 +12,7 @@ export enum BulletOwner {
 export class Bullet extends GameObject{
     isGrazed = false;
     owner: BulletOwner = BulletOwner.Enemy;
+    emitter: GameObject | null = null;
 
     private circleRenderer: Circle;
     private collision: CircleCollider;
@@ -30,12 +31,13 @@ export class Bullet extends GameObject{
         this.owner = owner;
     }
 
-    configure(speed: number, velocity: Vector2, radius: number, owner: BulletOwner): void {
+    configure(speed: number, velocity: Vector2, radius: number, owner: BulletOwner, emitter: GameObject | null = null): void {
         this.projectile.speed = speed;
         this.projectile.velocity = velocity;
         this.circleRenderer.radius = radius;
         this.collision.radius = radius;
         this.owner = owner;
+        this.emitter = emitter;
         this.isGrazed = false;
     }
 }

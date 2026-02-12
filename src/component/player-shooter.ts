@@ -50,6 +50,7 @@ export class PlayerShooter extends Component {
             velocity: new Vector2(0, -1),
             radius: this.bulletRadius,
             owner: BulletOwner.Player,
+            emitter: this.gameObject,
         });
         void AssetManager.playSound(PLAYER_SHOT_SE_PATH, 0.35);
     }

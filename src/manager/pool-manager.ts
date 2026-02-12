@@ -9,6 +9,7 @@ export interface BulletSpawnConfig {
     velocity: Vector2;
     radius: number;
     owner: BulletOwner;
+    emitter?: GameObject | null;
 }
 
 export interface BulletPoolStats {
@@ -41,7 +42,13 @@ class BulletPool {
             bullet = this.createBullet();
         }
 
-        bullet.configure(config.speed, config.velocity, config.radius, config.owner);
+        bullet.configure(
+            config.speed,
+            config.velocity,
+            config.radius,
+            config.owner,
+            config.emitter ?? null
+        );
         bullet.transform.position.x = config.position.x;
         bullet.transform.position.y = config.position.y;
         bullet.enable();
@@ -69,6 +76,17 @@ class BulletPool {
             active,
             inactive: this.bullets.length - active,
         };
+    }
+
+    recallByEmitter(emitter: GameObject): number {
+        let recalled = 0;
+        for (const bullet of this.bullets) {
+            if (bullet.enabled && bullet.emitter === emitter) {
+                bullet.disable();
+                recalled++;
+            }
+        }
+        return recalled;
     }
 
     private createBullet(): Bullet {
@@ -101,6 +119,10 @@ export class PoolManager {
 
     static getBulletPoolStats(): BulletPoolStats {
         return this.bulletPool.getStats();
+    }
+
+    static recallBulletsByEmitter(emitter: GameObject): number {
+        return this.bulletPool.recallByEmitter(emitter);
     }
 
     static clear(): void {

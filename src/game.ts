@@ -30,6 +30,8 @@ export class Game{
       void AssetManager.preloadAudio([
         "/assets/sounds/se/se_graze.wav",
         "/assets/sounds/se/se_plst00.wav",
+        "/assets/sounds/se/se_damage00.wav",
+        "/assets/sounds/se/se_nep00.wav",
       ]);
       this.poolsInitialized = true;
     }
