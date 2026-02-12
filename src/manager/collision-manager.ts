@@ -7,6 +7,7 @@ export class CollisionManager {
   grid: Map<string, Set<Collider>> = new Map();
   colliderToCellKeys: Map<Collider, Set<string>> = new Map();
   colliders: Collider[] = [];
+  private colliderById: Map<number, Collider> = new Map();
 
   private currentCollisions = new Set<string>();
   private previousCollisions = new Set<string>();
@@ -50,25 +51,24 @@ export class CollisionManager {
 
   private getPairFromId(pairId: string): [Collider | null, Collider | null] {
     const [idA, idB] = pairId.split('-').map(Number);
-
-    let colliderA: Collider | null = null;
-    let colliderB: Collider | null = null;
-
-    for (const collider of this.colliders) {
-      if (collider.getComponentId() === idA) colliderA = collider;
-      if (collider.getComponentId() === idB) colliderB = collider;
-      if (colliderA && colliderB) break;
-    }
-
+    const colliderA = this.colliderById.get(idA) ?? null;
+    const colliderB = this.colliderById.get(idB) ?? null;
     return [colliderA, colliderB];
   }
 
   update() {
+    const disabledColliders: Collider[] = [];
+
     for (const c of this.colliders) {
       if (c.enabled) {
         this.updateCollider(c);
-      
+      } else {
+        disabledColliders.push(c);
       }
+    }
+
+    for (const c of disabledColliders) {
+      this.removeCollider(c);
     }
 
     this.detectAllCollisions();
@@ -129,14 +129,16 @@ export class CollisionManager {
 
         const neighbors = this.getPotentialCollisions(collider);
         for (const other of neighbors) {
+          if (other.gameObject === collider.gameObject) continue;
+
           const pairId = this.createPairId(collider, other);
           if (processedPairs.has(pairId)) continue;
+          processedPairs.add(pairId);
 
           if (collider.checkCollision(other)) {
             this.currentCollisions.add(pairId);
 
             if (!this.previousCollisions.has(pairId)) {
-              console.log(`충돌 시작: ${collider.getComponentId()} <-> ${other.getComponentId()}`);
               collider.doCollisionEnter(other);
               other.doCollisionEnter(collider);
             }
@@ -145,7 +147,6 @@ export class CollisionManager {
               other.doCollisionStay?.(collider);
             }
 
-            processedPairs.add(pairId);
             result.push([collider, other]);
           }
         }
@@ -155,7 +156,6 @@ export class CollisionManager {
 
     for (const pairId of this.previousCollisions) {
       if (!this.currentCollisions.has(pairId)) {
-        console.log(`충돌 종료: ${pairId}`);
         const [colliderA, colliderB] = this.getPairFromId(pairId);
         if (colliderA && colliderB) {
           colliderA.doCollisionExit?.(colliderB);
@@ -170,16 +170,12 @@ export class CollisionManager {
   addCollider(collider: Collider) {
     if (!this.colliders.includes(collider)) {
       this.colliders.push(collider);
+      this.colliderById.set(collider.getComponentId(), collider);
       this.updateCollider(collider);
     }
   }
 
   removeCollider(collider: Collider) {
-    const index = this.colliders.indexOf(collider);
-    if (index > -1) {
-      this.colliders.splice(index, 1);
-    }
-
     const toRemove: string[] = [];
     for (const pairId of this.currentCollisions) {
       const [colliderA, colliderB] = this.getPairFromId(pairId);
@@ -208,11 +204,18 @@ export class CollisionManager {
       }
     }
     this.colliderToCellKeys.delete(collider);
+
+    const index = this.colliders.indexOf(collider);
+    if (index > -1) {
+      this.colliders.splice(index, 1);
+    }
+    this.colliderById.delete(collider.getComponentId());
   }
   clear() {
     this.grid.clear();
     this.colliderToCellKeys.clear();
     this.colliders.length = 0;
+    this.colliderById.clear();
     this.currentCollisions.clear();
     this.previousCollisions.clear();
   }

@@ -38,3 +38,8 @@ Desktop.ini
 
 # Electron auto-update cache (optional)
 .update/
+
+# Project folders to ignore
+docs/
+assets/
+public/assets/

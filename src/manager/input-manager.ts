@@ -1,4 +1,4 @@
-import { Input } from "electron";
+import { AssetManager } from "./asset-manager";
 
 export enum InputKey {
     Up = 'Up',
@@ -28,12 +28,17 @@ export class InputManager {
     private static currentHoldKeys = new Set<InputKey>();
     private static currentDownKeys = new Set<InputKey>();
     private static currentUpKeys = new Set<InputKey>();
+    private static triedAudioResume = false;
 
 
     static initialize() {
         window.addEventListener('keydown', (e) => {
            const inputKey = keyBindings[e.code];
            if (inputKey) {
+               if (!InputManager.triedAudioResume) {
+                   InputManager.triedAudioResume = true;
+                   void AssetManager.resumeAudioContext();
+               }
                if (!InputManager.storedHoldKeys.has(inputKey)) {
                    InputManager.storedDownKeys.add(inputKey);
                }

@@ -1,12 +1,13 @@
 import { Player } from "./actor/player";
 import { CircleCollider } from "./component/circle-colider";
-import { Collider } from "./lib/collider";
 import { GameObject } from "./lib/game-object";
+import { AssetManager } from "./manager/asset-manager";
 import { CollisionManager } from "./manager/collision-manager";
-import { InputManager } from "./manager/input-manager";
+import { PoolManager } from "./manager/pool-manager";
 import { SceneManager } from "./manager/sceneManager";
 import UIManager from "./manager/ui-manager";
 import { BasicScene } from "./scene/basicScene";
+import { Setting } from "./setting";
 
 export class Game{
   private static sceneManager = new SceneManager();
@@ -15,30 +16,47 @@ export class Game{
   public static player:Player | null = null;
   
   private static graze: number = 0;
+  private static hitCount: number = 0;
+  private static currentFps: number = 0;
+  private static poolsInitialized: boolean = false;
 
   static start(){
+    this.resetGraze();
+    this.resetHitCount();
     this.sceneManager.loadScene(new BasicScene());
+
+    if (!this.poolsInitialized) {
+      PoolManager.prewarmBulletPool(Setting.system.bulletPoolPrewarmCount);
+      void AssetManager.preloadAudio([
+        "/assets/sounds/se/se_graze.wav",
+        "/assets/sounds/se/se_plst00.wav",
+      ]);
+      this.poolsInitialized = true;
+    }
   }
 
   static update(delta: number){
-    InputManager.update();
     this.sceneManager.update(delta);
     this.collisionManager.update();
   }
 
   static draw(context: CanvasRenderingContext2D){
     this.sceneManager.draw(context);
-    this.collisionManager.drawDebugLine(context);
+    if (Setting.system.drawCollisionDebugGrid) {
+      this.collisionManager.drawDebugLine(context);
+    }
     this.uiManager.drawUI(context);
   }
 
   static async registerObject(object: GameObject){
     await this.sceneManager.addToCurrentScene(object);
+    this.registerCollidersForObject(object);
+  }
+
+  static registerCollidersForObject(object: GameObject){
     const colliderComponents = object.getComponents(CircleCollider);
-    //console.log(`obj[${object.name}]의 콜라이더 갯수: ${colliderComponents.length}`);
-    if(colliderComponents.length > 0){
-      this.collisionManager.colliders.push(...colliderComponents);
-    
+    for (const collider of colliderComponents) {
+      this.collisionManager.addCollider(collider);
     }
   }
 
@@ -55,5 +73,23 @@ export class Game{
   }
   static resetGraze(){
     this.graze = 0;
+  }
+
+  static increaseHitCount(){
+    this.hitCount++;
+  }
+  static getHitCount(){
+    return this.hitCount;
+  }
+  static resetHitCount(){
+    this.hitCount = 0;
+  }
+
+  static setCurrentFps(fps: number){
+    this.currentFps = fps;
+  }
+
+  static getCurrentFps(){
+    return this.currentFps;
   }
 }

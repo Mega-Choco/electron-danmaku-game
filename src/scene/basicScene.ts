@@ -9,6 +9,6 @@ export class BasicScene extends Scene{
     constructor(){
         super();
         GameObject.instantiate(new Player(new Vector2(300, 500)));
-        GameObject.instantiate(new Enemy(new Vector2(300, 100)))
+        GameObject.instantiate(new Enemy(new Vector2(300, 100), 20, 15));
     }
 }

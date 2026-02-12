@@ -4,13 +4,12 @@ import { Game } from './game';
 import { InputManager } from './manager/input-manager';
 import { Setting } from './setting';
 
-let targetInterval: number = 0;
-let deltaTime: number = 0;
-let currentTime: number = 0;
 let previousTime: number = 0;
-let accumlatedTime: number = 0;
-let canvas = document.getElementById('screen') as HTMLCanvasElement | null;
-let isPaused = false;
+let accumulatedTime: number = 0;
+let fixedDelta: number = 1 / Setting.system.fps;
+let configuredFps: number = Setting.system.fps;
+let smoothedFps: number = Setting.system.fps;
+const canvas = document.getElementById('screen') as HTMLCanvasElement | null;
 
 if(canvas == null)
   throw new Error('Canvas not found!');
@@ -25,35 +24,61 @@ function initialize(){
   canvas!.height = Setting.screen.height;
   start();
 }
+
 function start(){
-  targetInterval = 1000 / Setting.system.fps;
   InputManager.initialize();
-  
   Game.start();
   previousTime = performance.now();
-  loop();
-}
-
-function loop(){
-  currentTime = performance.now();
-  let elapsedTime = currentTime - previousTime;
-  previousTime = currentTime;
-  accumlatedTime += elapsedTime;
-
-  if(targetInterval <= accumlatedTime){
-    while(accumlatedTime >= targetInterval){
-      deltaTime = targetInterval/1000;
-      update();      
-      accumlatedTime -= targetInterval;
-    }
-    draw();  
-  }
+  Game.setCurrentFps(Setting.system.fps);
   requestAnimationFrame(loop);
-  return;
 }
 
-function update(){
-  Game.update(deltaTime);
+function updateLoopSettings(){
+  const nextFps = Math.max(1, Setting.system.fps);
+  if (nextFps !== configuredFps) {
+    configuredFps = nextFps;
+    fixedDelta = 1 / configuredFps;
+    accumulatedTime = Math.min(accumulatedTime, fixedDelta);
+  }
+}
+
+function loop(now: number){
+  updateLoopSettings();
+
+  let frameTime = (now - previousTime) / 1000;
+  previousTime = now;
+
+  const maxFrameTime = Math.max(fixedDelta, Setting.system.maxFrameTime);
+  frameTime = Math.min(frameTime, maxFrameTime);
+  if (frameTime > 0) {
+    const instantFps = 1 / frameTime;
+    const smoothing = Math.min(1, Math.max(0, Setting.system.fpsSmoothingFactor));
+    smoothedFps += (instantFps - smoothedFps) * smoothing;
+    Game.setCurrentFps(smoothedFps);
+  }
+
+  accumulatedTime += frameTime;
+
+  InputManager.update();
+
+  const maxSteps = Math.max(1, Math.floor(Setting.system.maxUpdateStepsPerFrame));
+  let stepCount = 0;
+  while (accumulatedTime >= fixedDelta && stepCount < maxSteps) {
+    update(fixedDelta);
+    accumulatedTime -= fixedDelta;
+    stepCount++;
+  }
+
+  if (stepCount === maxSteps && accumulatedTime >= fixedDelta) {
+    accumulatedTime = 0;
+  }
+
+  draw();
+  requestAnimationFrame(loop);
+}
+
+function update(delta: number){
+  Game.update(delta);
 }
 
 function draw(){

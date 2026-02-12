@@ -1,6 +1,7 @@
-import { Bullet } from "../../actor/bullet";
+import { BulletOwner } from "../../actor/bullet";
 import { GameObject } from "../../lib/game-object";
 import { Vector2 } from "../../lib/vector2";
+import { PoolManager } from "../../manager/pool-manager";
 import { Pattern } from "./pattern";
 
 export class RadialShotPattern extends Pattern {
@@ -14,9 +15,13 @@ export class RadialShotPattern extends Pattern {
             const vx = Math.cos(angle) * speed;
             const vy = Math.sin(angle) * speed;
 
-            const bullet = new Bullet(speed, new Vector2(vx, vy), 10);
-            bullet.transform.position = new Vector2(myPos.x, myPos.y);
-            GameObject.instantiate(bullet);
+            PoolManager.acquireBullet({
+                position: new Vector2(myPos.x, myPos.y),
+                speed,
+                velocity: new Vector2(vx, vy),
+                radius: 10,
+                owner: BulletOwner.Enemy,
+            });
         }
     }
 }
