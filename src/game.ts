@@ -3,6 +3,7 @@ import { CircleCollider } from "./component/circle-colider";
 import { GameObject } from "./lib/game-object";
 import { AssetManager } from "./manager/asset-manager";
 import { CollisionManager } from "./manager/collision-manager";
+import { FormationRuntime } from "./manager/formation-runtime";
 import { PoolManager } from "./manager/pool-manager";
 import { SceneManager } from "./manager/sceneManager";
 import UIManager from "./manager/ui-manager";
@@ -23,6 +24,7 @@ export class Game{
   static start(){
     this.resetGraze();
     this.resetHitCount();
+    FormationRuntime.clear();
     this.sceneManager.loadScene(new BasicScene());
 
     if (!this.poolsInitialized) {
@@ -31,7 +33,7 @@ export class Game{
         "/assets/sounds/se/se_graze.wav",
         "/assets/sounds/se/se_plst00.wav",
         "/assets/sounds/se/se_damage00.wav",
-        "/assets/sounds/se/se_nep00.wav",
+        "/assets/sounds/se/se_enep00.wav",
       ]);
       this.poolsInitialized = true;
     }
@@ -39,11 +41,19 @@ export class Game{
 
   static update(delta: number){
     this.sceneManager.update(delta);
+    FormationRuntime.update(delta);
     this.collisionManager.update();
   }
 
   static draw(context: CanvasRenderingContext2D){
     this.sceneManager.draw(context);
+    if (Setting.system.drawFormationPathDebug) {
+      FormationRuntime.drawDebug(context, {
+        previewSeconds: Setting.system.formationPathPreviewSeconds,
+        sampleCount: Setting.system.formationPathSampleCount,
+        drawSlots: true,
+      });
+    }
     if (Setting.system.drawCollisionDebugGrid) {
       this.collisionManager.drawDebugLine(context);
     }

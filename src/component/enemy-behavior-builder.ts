@@ -11,6 +11,7 @@ export type EnemyBehaviorCommand =
     | { kind: "playSe"; se: PlaySeConfig }
     | { kind: "moveTo"; x: number; y: number; seconds: number }
     | { kind: "moveBy"; dx: number; dy: number; seconds: number }
+    | { kind: "despawn" }
     | { kind: "repeat"; count: number; commands: EnemyBehaviorCommand[] };
 
 export type EnemyBehaviorScript = EnemyBehaviorCommand[];
@@ -40,6 +41,10 @@ export function moveTo(x: number, y: number, seconds: number): EnemyBehaviorComm
 
 export function moveBy(dx: number, dy: number, seconds: number): EnemyBehaviorCommand {
     return { kind: "moveBy", dx, dy, seconds };
+}
+
+export function despawn(): EnemyBehaviorCommand {
+    return { kind: "despawn" };
 }
 
 export function repeat(count: number, ...commands: EnemyBehaviorCommand[]): EnemyBehaviorCommand {

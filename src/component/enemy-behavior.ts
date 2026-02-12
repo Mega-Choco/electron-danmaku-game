@@ -82,6 +82,12 @@ export class EnemyBehavior extends Component {
                 continue;
             }
 
+            if (command.kind === "despawn") {
+                this.gameObject.disable();
+                this.stack = [];
+                return;
+            }
+
             if (command.kind === "wait") {
                 if (timeBudget <= 0) {
                     break;
@@ -186,4 +192,5 @@ export class EnemyBehavior extends Component {
         }
         return `/assets/sounds/se/${rawPath}`;
     }
+
 }

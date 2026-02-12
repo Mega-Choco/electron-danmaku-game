@@ -1,4 +1,5 @@
 import { Circle } from "../component/circle";
+import { EnemyAutoDespawn } from "../component/enemy-auto-despawn";
 import { EnemyBehavior } from "../component/enemy-behavior";
 import { EnemyBehaviorScript } from "../component/enemy-behavior-builder";
 import { EnemyHitCollider } from "../component/enemy-hit-collider";
@@ -16,6 +17,7 @@ export interface EnemyConfig {
     hitboxRadius?: number;
     color?: string;
     behavior?: EnemyBehaviorScript;
+    autoDespawnOutOfBounds?: boolean;
 }
 
 export class Enemy extends GameObject{
@@ -33,6 +35,9 @@ export class Enemy extends GameObject{
         });
         this.addComponent(health);
         this.addComponent(new EnemyHitCollider(hitboxRadius));
+        if (config.autoDespawnOutOfBounds ?? true) {
+            this.addComponent(new EnemyAutoDespawn());
+        }
 
         if (config.behavior != null) {
             this.addComponent(new EnemyBehavior(config.behavior));
