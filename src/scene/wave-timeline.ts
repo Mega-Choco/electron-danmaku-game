@@ -1,6 +1,20 @@
 import { GameObject } from "../lib/game-object";
+import { Health } from "../component/health";
 
 export type WaveActionResult = void | GameObject | GameObject[];
+
+export interface WaveClearContext {
+    wave: WaveDefinition;
+    elapsed: number;
+    eventsDone: boolean;
+    activeWaveEnemies: ReadonlySet<GameObject>;
+}
+
+export type WaveClearPolicy =
+    | { type: "allExited" }
+    | { type: "allDead" }
+    | { type: "timer"; seconds: number }
+    | { type: "custom"; evaluator: (context: WaveClearContext) => boolean };
 
 export interface WaveEvent {
     at: number;
@@ -11,6 +25,7 @@ export interface WaveDefinition {
     name: string;
     startAt: number;
     events: WaveEvent[];
+    clearPolicy?: WaveClearPolicy;
 }
 
 export class WaveTimeline {
@@ -31,6 +46,7 @@ export class WaveTimeline {
             ...wave,
             startAt: Math.max(0, wave.startAt),
             events: [...wave.events].sort((a, b) => a.at - b.at),
+            clearPolicy: wave.clearPolicy ?? { type: "allExited" },
         }));
         this.reset();
     }
@@ -101,8 +117,32 @@ export class WaveTimeline {
 
     private isCurrentWaveCleared(): boolean {
         const currentWave = this.waves[this.currentWaveIndex];
-        if (this.currentWaveEventCursor < currentWave.events.length) {
+        const eventsDone = this.currentWaveEventCursor >= currentWave.events.length;
+        if (!eventsDone) {
             return false;
+        }
+
+        const clearPolicy = currentWave.clearPolicy ?? { type: "allExited" };
+        if (clearPolicy.type === "timer") {
+            return this.currentWaveElapsed >= Math.max(0, clearPolicy.seconds);
+        }
+
+        if (clearPolicy.type === "custom") {
+            return clearPolicy.evaluator({
+                wave: currentWave,
+                elapsed: this.currentWaveElapsed,
+                eventsDone,
+                activeWaveEnemies: this.activeWaveEnemies,
+            });
+        }
+
+        if (clearPolicy.type === "allDead") {
+            for (const enemy of this.activeWaveEnemies) {
+                if (!this.isObjectDead(enemy)) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         for (const enemy of this.activeWaveEnemies) {
@@ -111,6 +151,14 @@ export class WaveTimeline {
             }
         }
         return true;
+    }
+
+    private isObjectDead(object: GameObject): boolean {
+        const health = object.getComponent(Health);
+        if (health != null) {
+            return health.isDead();
+        }
+        return !object.enabled;
     }
 
     private advanceWave(): void {

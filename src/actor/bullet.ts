@@ -31,9 +31,19 @@ export class Bullet extends GameObject{
         this.owner = owner;
     }
 
-    configure(speed: number, velocity: Vector2, radius: number, owner: BulletOwner, emitter: GameObject | null = null): void {
+    configure(
+        speed: number,
+        velocity: Vector2,
+        radius: number,
+        owner: BulletOwner,
+        emitter: GameObject | null = null,
+        acceleration: number = 0,
+        turnRateDegPerSec: number = 0
+    ): void {
         this.projectile.speed = speed;
         this.projectile.velocity = velocity;
+        this.projectile.acceleration = acceleration;
+        this.projectile.turnRateDegPerSec = turnRateDegPerSec;
         this.circleRenderer.radius = radius;
         this.collision.radius = radius;
         this.owner = owner;

@@ -1,4 +1,4 @@
-import { GameObject } from "../lib/game-object";
+import { Actor } from "./actor";
 import { PlayerController } from "../component/player-controller";
 import { SpriteAnimation } from "../component/sprite-animation";
 import { Vector2 } from "../lib/vector2";
@@ -7,10 +7,18 @@ import { GrazeCollider } from "../component/graze-collider";
 import { PlayerHitboxColider } from "../component/player-hit-colider";
 import { PlayerShooter } from "../component/player-shooter";
 import { Setting } from "../setting";
+import { StateMachineProfile } from "../component/state-machine";
+import { createPlayerDefaultProfile } from "./state-profiles";
 
-export class Player extends GameObject{
-    constructor(position: Vector2){
+export interface PlayerConfig {
+    stateProfile?: StateMachineProfile;
+}
+
+export class Player extends Actor{
+    constructor(position: Vector2, config: PlayerConfig = {}){
         super('Player', position);
+        this.applyStateProfile(config.stateProfile ?? createPlayerDefaultProfile());
+
         this.addComponent(new PlayerController(300));
         this.addComponent(new PlayerShooter(
             Setting.system.playerShotInterval,

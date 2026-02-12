@@ -1,20 +1,20 @@
 import { Component } from "../lib/component";
 import { AssetManager } from "../manager/asset-manager";
+import { SignalBus } from "../manager/signal-bus";
 import { EnemyBehaviorCommand, EnemyBehaviorScript } from "./enemy-behavior-builder";
+import { MotionController } from "./motion-controller";
 import { fireEnemyPattern } from "./pattern/pattern-registry";
+
+let enemyBehaviorRuntimeSeq = 0;
+
+function nextEnemyBehaviorRuntimeId(): string {
+    enemyBehaviorRuntimeSeq++;
+    return `eb-${enemyBehaviorRuntimeSeq.toString(36)}`;
+}
 
 type FrameCommandState =
     | { type: "wait"; remaining: number }
-    | {
-          type: "move";
-          mode: "to" | "by";
-          duration: number;
-          elapsed: number;
-          startX: number;
-          startY: number;
-          endX: number;
-          endY: number;
-      };
+    | { type: "move"; started: boolean };
 
 interface RuntimeFrame {
     commands: EnemyBehaviorCommand[];
@@ -23,9 +23,15 @@ interface RuntimeFrame {
     state: FrameCommandState | null;
 }
 
+type FireCommand = Extract<EnemyBehaviorCommand, { kind: "fire" }>;
+type BulletRecallable = { recallOwnBullets: () => number };
+
 export class EnemyBehavior extends Component {
     private root: EnemyBehaviorScript;
     private stack: RuntimeFrame[] = [];
+    private runtimeId: string = nextEnemyBehaviorRuntimeId();
+    private fireCommandSeq = 0;
+    private fireStreamIds = new WeakMap<FireCommand, string>();
 
     constructor(root: EnemyBehaviorScript) {
         super();
@@ -57,8 +63,28 @@ export class EnemyBehavior extends Component {
 
             const command = frame.commands[frame.index];
 
+            if (command.kind === "emitSignal") {
+                SignalBus.emit(command.signal);
+                frame.index++;
+                continue;
+            }
+
+            if (command.kind === "waitSignal") {
+                if (SignalBus.isEmitted(command.signal)) {
+                    frame.index++;
+                    continue;
+                }
+                break;
+            }
+
             if (command.kind === "fire") {
-                fireEnemyPattern(this.gameObject, command.pattern, command.params);
+                fireEnemyPattern(this.gameObject, command.pattern, this.resolveFireParams(command));
+                frame.index++;
+                continue;
+            }
+
+            if (command.kind === "recallBullets") {
+                this.recallOwnedBullets();
                 frame.index++;
                 continue;
             }
@@ -104,36 +130,46 @@ export class EnemyBehavior extends Component {
                 break;
             }
 
-            if (command.kind === "moveTo" || command.kind === "moveBy") {
-                if (timeBudget <= 0) {
-                    break;
-                }
-
+            if (command.kind === "moveTo" || command.kind === "moveBy" || command.kind === "moveRandom") {
                 const state = this.ensureMoveState(frame, command);
-                if (state.duration <= 0) {
-                    this.gameObject.transform.position.x = state.endX;
-                    this.gameObject.transform.position.y = state.endY;
+                const motionController = this.gameObject.getComponent(MotionController);
+
+                if (motionController == null) {
+                    if (command.kind === "moveTo") {
+                        this.gameObject.transform.position.x = command.x;
+                        this.gameObject.transform.position.y = command.y;
+                    } else if (command.kind === "moveBy") {
+                        this.gameObject.transform.position.x += command.dx;
+                        this.gameObject.transform.position.y += command.dy;
+                    } else {
+                        const next = this.pickRandomMovePoint(command);
+                        this.gameObject.transform.position.x = next.x;
+                        this.gameObject.transform.position.y = next.y;
+                    }
                     frame.state = null;
                     frame.index++;
                     continue;
                 }
 
-                const remain = Math.max(0, state.duration - state.elapsed);
-                const consumed = Math.min(remain, timeBudget);
-                state.elapsed += consumed;
-                timeBudget -= consumed;
+                if (!state.started) {
+                    if (command.kind === "moveTo") {
+                        motionController.startMoveTo(command.x, command.y, command.seconds);
+                    } else if (command.kind === "moveBy") {
+                        motionController.startMoveBy(command.dx, command.dy, command.seconds);
+                    } else {
+                        const next = this.pickRandomMovePoint(command);
+                        motionController.startMoveTo(next.x, next.y, command.seconds);
+                    }
+                    state.started = true;
+                }
 
-                const t = Math.min(1, state.elapsed / state.duration);
-                this.gameObject.transform.position.x = state.startX + (state.endX - state.startX) * t;
-                this.gameObject.transform.position.y = state.startY + (state.endY - state.startY) * t;
-
-                if (state.elapsed >= state.duration) {
+                if (!motionController.isMoving()) {
                     frame.state = null;
                     frame.index++;
+                    continue;
                 }
-                if (timeBudget <= 0) {
-                    break;
-                }
+
+                break;
             }
         }
     }
@@ -161,29 +197,48 @@ export class EnemyBehavior extends Component {
 
     private ensureMoveState(
         frame: RuntimeFrame,
-        command: Extract<EnemyBehaviorCommand, { kind: "moveTo" } | { kind: "moveBy" }>
+        command: Extract<EnemyBehaviorCommand, { kind: "moveTo" } | { kind: "moveBy" } | { kind: "moveRandom" }>
     ): Extract<FrameCommandState, { type: "move" }> {
         if (frame.state != null && frame.state.type === "move") {
             return frame.state;
         }
 
-        const startX = this.gameObject.transform.position.x;
-        const startY = this.gameObject.transform.position.y;
-        const endX = command.kind === "moveTo" ? command.x : startX + command.dx;
-        const endY = command.kind === "moveTo" ? command.y : startY + command.dy;
-
         const state: Extract<FrameCommandState, { type: "move" }> = {
             type: "move",
-            mode: command.kind === "moveTo" ? "to" : "by",
-            duration: Math.max(0, command.seconds),
-            elapsed: 0,
-            startX,
-            startY,
-            endX,
-            endY,
+            started: false,
         };
         frame.state = state;
         return state;
+    }
+
+    private resolveFireParams(command: FireCommand): FireCommand["params"] {
+        if (command.pattern !== "spiral") {
+            return command.params;
+        }
+
+        const streamId = command.params?.streamId;
+        if (typeof streamId === "string" && streamId.length > 0) {
+            return command.params;
+        }
+
+        let autoStreamId = this.fireStreamIds.get(command);
+        if (autoStreamId == null) {
+            this.fireCommandSeq++;
+            autoStreamId = `${this.runtimeId}-fire-${this.fireCommandSeq.toString(36)}`;
+            this.fireStreamIds.set(command, autoStreamId);
+        }
+
+        return {
+            ...(command.params ?? {}),
+            streamId: autoStreamId,
+        };
+    }
+
+    private recallOwnedBullets(): void {
+        const recallable = this.gameObject as unknown as Partial<BulletRecallable>;
+        if (typeof recallable.recallOwnBullets === "function") {
+            recallable.recallOwnBullets();
+        }
     }
 
     private resolveSePath(rawPath: string): string {
@@ -191,6 +246,71 @@ export class EnemyBehavior extends Component {
             return rawPath;
         }
         return `/assets/sounds/se/${rawPath}`;
+    }
+
+    private randomRange(a: number, b: number): number {
+        const min = Math.min(a, b);
+        const max = Math.max(a, b);
+        if (min === max) {
+            return min;
+        }
+        return min + Math.random() * (max - min);
+    }
+
+    private pickRandomMovePoint(command: Extract<EnemyBehaviorCommand, { kind: "moveRandom" }>): { x: number; y: number } {
+        const minX = Math.min(command.minX, command.maxX);
+        const maxX = Math.max(command.minX, command.maxX);
+        const minY = Math.min(command.minY, command.maxY);
+        const maxY = Math.max(command.minY, command.maxY);
+
+        const currentX = this.gameObject.transform.position.x;
+        const currentY = this.gameObject.transform.position.y;
+        const minDistance = Math.max(0, command.minDistanceFromCurrent ?? 0);
+        const maxAttempts = Math.max(1, Math.floor(command.maxAttempts ?? 12));
+
+        let bestX = currentX;
+        let bestY = currentY;
+        let bestDistance = -1;
+
+        for (let i = 0; i < maxAttempts; i++) {
+            const x = this.randomRange(minX, maxX);
+            const y = this.randomRange(minY, maxY);
+            const dist = Math.hypot(x - currentX, y - currentY);
+
+            if (dist >= minDistance) {
+                return { x, y };
+            }
+
+            if (dist > bestDistance) {
+                bestDistance = dist;
+                bestX = x;
+                bestY = y;
+            }
+        }
+
+        if (minDistance <= 0) {
+            return { x: bestX, y: bestY };
+        }
+
+        const corners = [
+            { x: minX, y: minY },
+            { x: minX, y: maxY },
+            { x: maxX, y: minY },
+            { x: maxX, y: maxY },
+        ];
+
+        let farCorner = corners[0];
+        let farDist = Math.hypot(farCorner.x - currentX, farCorner.y - currentY);
+        for (let i = 1; i < corners.length; i++) {
+            const c = corners[i];
+            const d = Math.hypot(c.x - currentX, c.y - currentY);
+            if (d > farDist) {
+                farDist = d;
+                farCorner = c;
+            }
+        }
+
+        return farDist > bestDistance ? farCorner : { x: bestX, y: bestY };
     }
 
 }

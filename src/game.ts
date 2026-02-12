@@ -6,6 +6,7 @@ import { CollisionManager } from "./manager/collision-manager";
 import { FormationRuntime } from "./manager/formation-runtime";
 import { PoolManager } from "./manager/pool-manager";
 import { SceneManager } from "./manager/sceneManager";
+import { SignalBus } from "./manager/signal-bus";
 import UIManager from "./manager/ui-manager";
 import { BasicScene } from "./scene/basicScene";
 import { Setting } from "./setting";
@@ -24,6 +25,7 @@ export class Game{
   static start(){
     this.resetGraze();
     this.resetHitCount();
+    SignalBus.clear();
     FormationRuntime.clear();
     this.sceneManager.loadScene(new BasicScene());
 

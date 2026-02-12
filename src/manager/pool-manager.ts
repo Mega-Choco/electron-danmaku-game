@@ -10,6 +10,8 @@ export interface BulletSpawnConfig {
     radius: number;
     owner: BulletOwner;
     emitter?: GameObject | null;
+    acceleration?: number;
+    turnRateDegPerSec?: number;
 }
 
 export interface BulletPoolStats {
@@ -47,7 +49,9 @@ class BulletPool {
             config.velocity,
             config.radius,
             config.owner,
-            config.emitter ?? null
+            config.emitter ?? null,
+            config.acceleration ?? 0,
+            config.turnRateDegPerSec ?? 0
         );
         bullet.transform.position.x = config.position.x;
         bullet.transform.position.y = config.position.y;

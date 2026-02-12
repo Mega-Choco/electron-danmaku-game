@@ -2,13 +2,33 @@ import { Enemy, EnemyConfig } from "../actor/enemy";
 import { GameObject } from "../lib/game-object";
 import { Vector2 } from "../lib/vector2";
 import { FormationGroupConfig, FormationRuntime } from "../manager/formation-runtime";
-import { WaveActionResult, WaveDefinition, WaveEvent } from "./wave-timeline";
+import { WaveActionResult, WaveClearPolicy, WaveDefinition, WaveEvent } from "./wave-timeline";
 
-export function wave(name: string, startAt: number, ...events: WaveEvent[]): WaveDefinition {
+export interface WaveBuildOptions {
+    clearPolicy?: WaveClearPolicy;
+}
+
+function isWaveEvent(item: WaveEvent | WaveBuildOptions): item is WaveEvent {
+    return typeof (item as WaveEvent).at === "number" && typeof (item as WaveEvent).action === "function";
+}
+
+export function wave(name: string, startAt: number, ...items: Array<WaveEvent | WaveBuildOptions>): WaveDefinition {
+    const options: WaveBuildOptions = {};
+    const events: WaveEvent[] = [];
+
+    for (const item of items) {
+        if (isWaveEvent(item)) {
+            events.push(item);
+            continue;
+        }
+        Object.assign(options, item);
+    }
+
     return {
         name,
         startAt: Math.max(0, startAt),
         events,
+        clearPolicy: options.clearPolicy ?? { type: "allExited" },
     };
 }
 
@@ -36,6 +56,7 @@ export interface FormationSpawnConfig {
     enemyConfigs?: EnemyConfig[] | ((index: number) => EnemyConfig);
     anchorPath?: FormationGroupConfig["anchorPath"];
     duration?: number;
+    endSignal?: string;
 }
 
 export function spawnFormation(config: FormationSpawnConfig): () => GameObject[] {
@@ -66,6 +87,7 @@ export function spawnFormation(config: FormationSpawnConfig): () => GameObject[]
             slotOffsets,
             anchorPath: config.anchorPath,
             duration: config.duration,
+            endSignal: config.endSignal,
         });
 
         return members;

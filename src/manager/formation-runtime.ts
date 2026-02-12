@@ -1,5 +1,6 @@
 import { GameObject } from "../lib/game-object";
 import { Vector2 } from "../lib/vector2";
+import { SignalBus } from "./signal-bus";
 
 export interface FormationGroupConfig {
     members: GameObject[];
@@ -7,6 +8,7 @@ export interface FormationGroupConfig {
     slotOffsets: Vector2[];
     anchorPath?: (elapsed: number, origin: Vector2) => Vector2;
     duration?: number;
+    endSignal?: string;
 }
 
 export interface FormationPathDebugOptions {
@@ -21,6 +23,8 @@ class FormationGroup {
     private slotOffsets: Vector2[];
     private anchorPath: (elapsed: number, origin: Vector2) => Vector2;
     private duration: number | null;
+    private endSignal: string | null;
+    private endSignalEmitted = false;
     private elapsed = 0;
 
     constructor(config: FormationGroupConfig) {
@@ -29,6 +33,7 @@ class FormationGroup {
         this.slotOffsets = config.slotOffsets.map((offset) => new Vector2(offset.x, offset.y));
         this.anchorPath = config.anchorPath ?? ((_, origin) => new Vector2(origin.x, origin.y));
         this.duration = typeof config.duration === "number" ? Math.max(0, config.duration) : null;
+        this.endSignal = config.endSignal ?? null;
     }
 
     update(delta: number): boolean {
@@ -54,6 +59,14 @@ class FormationGroup {
         }
 
         return activeMembers > 0;
+    }
+
+    emitEndSignalOnce(): void {
+        if (this.endSignalEmitted || this.endSignal == null || this.endSignal.length === 0) {
+            return;
+        }
+        this.endSignalEmitted = true;
+        SignalBus.emit(this.endSignal);
     }
 
     drawDebug(context: CanvasRenderingContext2D, options: FormationPathDebugOptions): void {
@@ -123,6 +136,9 @@ export class FormationRuntime {
         if (config.members.length === 0) {
             return;
         }
+        if (config.endSignal != null && config.endSignal.length > 0) {
+            SignalBus.clearSignal(config.endSignal);
+        }
         this.groups.push(new FormationGroup(config));
     }
 
@@ -130,7 +146,17 @@ export class FormationRuntime {
         if (this.groups.length === 0) {
             return;
         }
-        this.groups = this.groups.filter((group) => group.update(delta));
+
+        const nextGroups: FormationGroup[] = [];
+        for (const group of this.groups) {
+            const isAlive = group.update(delta);
+            if (isAlive) {
+                nextGroups.push(group);
+            } else {
+                group.emitEndSignalOnce();
+            }
+        }
+        this.groups = nextGroups;
     }
 
     static clear(): void {

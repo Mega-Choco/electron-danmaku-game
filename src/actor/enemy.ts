@@ -5,10 +5,12 @@ import { EnemyBehaviorScript } from "../component/enemy-behavior-builder";
 import { EnemyHitCollider } from "../component/enemy-hit-collider";
 import { EmenyController } from "../component/enemy-controller";
 import { Health } from "../component/health";
-import { GameObject } from "../lib/game-object";
 import { Vector2 } from "../lib/vector2";
 import { AssetManager } from "../manager/asset-manager";
 import { PoolManager } from "../manager/pool-manager";
+import { Actor } from "./actor";
+import { StateMachineProfile } from "../component/state-machine";
+import { createEnemyDefaultProfile } from "./state-profiles";
 
 const ENEMY_DEATH_SE_PATH = "/assets/sounds/se/se_enep00.wav";
 
@@ -18,11 +20,14 @@ export interface EnemyConfig {
     color?: string;
     behavior?: EnemyBehaviorScript;
     autoDespawnOutOfBounds?: boolean;
+    stateProfile?: StateMachineProfile;
 }
 
-export class Enemy extends GameObject{
+export class Enemy extends Actor{
     constructor(position: Vector2, config: EnemyConfig = {}){
         super("enemy", position);
+        this.applyStateProfile(config.stateProfile ?? createEnemyDefaultProfile());
+
         const maxHealth = config.maxHealth ?? 20;
         const hitboxRadius = config.hitboxRadius ?? 15;
         const color = config.color ?? "red";
